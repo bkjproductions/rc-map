@@ -211,34 +211,48 @@ if (!class_exists('RC_POI_Post_Type ')) {
         // SEARCHABLE META DATA
 
         public function customSearchQuery($query): void {
-            global $wpdb;
-
+            $post_type = 'rc-poi';
+            if ($query->query['post_type'] != $post_type) {
+                return;
+            }
             if ( is_search() ) {
                 // global $wp_query;
                 // error_log(print_r($wp_query->get_queried_object(),true));
 
                 // Prevent duplicates in the search results
-                add_filter( 'posts_distinct', function( $distinct ) {
-                    return "DISTINCT";
-                });
+                add_filter( 'posts_distinct', [$this, 'distinctColumns']);
 
                 // Modify the WHERE clause to include custom meta fields in the search
-                add_filter( 'posts_where', function( $where ) use ( $wpdb ) {
-                    $search_term = get_search_query();
-                    if ( !empty($search_term) ) {
-                        $where = preg_replace(
-                            "/\(\s*".$wpdb->posts.".post_title\s+LIKE\s*(\'[^\']+\')\s*\)/",
-                            "(".$wpdb->posts.".post_title LIKE $1) OR (".$wpdb->postmeta.".meta_value LIKE $1)", $where );
-                    }
-                    return $where;
-                });
+                add_filter( 'posts_where', [$this, 'whereClauseAdjustment'] );
 
-                add_action( 'posts_join', function( $join ) use ( $wpdb ) {
-                    // Add a unique alias 'pm' for the wp_postmeta table using AS keyword
-                    $join .= ' LEFT JOIN ' . $wpdb->postmeta . ' AS pm ON ' . $wpdb->posts . '.ID = pm.post_id ';
-                    return $join;
-                });
+                // Join the postmeta table for custom meta fields search
+                add_action( 'posts_join', [$this, 'joinDatabaseColumns'] );
             }
+        }
+        public function distinctColumns (): string
+        {
+            return "DISTINCT";
+        }
+        public function whereClauseAdjustment($where){
+            global $wpdb;
+            $search_term = get_search_query();
+            if ( !empty($search_term) ) {
+                // ADD the unique alias '{plugin}_pm'
+
+                $where = preg_replace(
+                    "/\(\s*".$wpdb->posts.".post_title\s+LIKE\s*(\'[^\']+\')\s*\)/",
+                    "(".$wpdb->posts.".post_title LIKE $1) OR (rc_map_pm.meta_value LIKE $1)", $where );
+            }
+            return $where;
+        }
+        public function joinDatabaseColumns($join){
+            global $wpdb;
+            // Check if the wp_postmeta table is already joined
+            if (strpos($join, $wpdb->postmeta) === false) {
+                // If not joined, then add the LEFT JOIN clause with the unique alias '{plugin}_pm'
+                $join .= ' LEFT JOIN ' . $wpdb->postmeta . ' AS rc_map_pm ON ' . $wpdb->posts . '.ID = rc_map_pm.post_id ';
+            }
+            return $join;
         }
         private function validateUser($post_id):bool {
             if( isset( $_POST['rc_map_nonce'] ) ){
