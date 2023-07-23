@@ -14,6 +14,9 @@ if (!class_exists('RC_POI_Post_Type ')) {
             // BUILD META BOXES
             add_action('add_meta_boxes', [$this, 'addMetaBoxes']);
 
+            // ADD CUSTOM TAXONOMY
+            add_action( 'init', [$this, 'addTaxonomy'], 0 );
+
             // SAVE META DATA
             add_action( 'save_post', [$this, 'savePost'], 10, 2 );
 
@@ -62,12 +65,38 @@ if (!class_exists('RC_POI_Post_Type ')) {
                 'has_archive' => true,
                 'menu_position' => 5,
                 //'taxonomies'         => array( 'category', 'post_tag' ),
-                'taxonomies'         => array( 'category' ),
+                'taxonomies'         => array( 'point-of-interest' ),
                 'show_in_rest' => true,
                 'menu_icon' => 'dashicons-admin-site-alt'
             );
 
             register_post_type('rc-poi', $args);
+
+        }
+        // ADD CUSTOM TAXONOMY
+        public function addTaxonomy (): void {
+            $labels = array(
+                'name'              => _x( 'Location Type', 'taxonomy general name' ),
+                'singular_name'     => _x( 'Location Type', 'taxonomy singular name' ),
+                // Add other labels as needed
+            );
+
+            $args = array(
+                'hierarchical'      => false, // You can choose hierarchical or non-hierarchical
+                'labels'            => $labels,
+                'show_ui'           => true,
+                'show_in_rest'      => true,
+                'show_admin_column' => true,
+                'query_var'         => true,
+                'rewrite'           => array( 'slug' => 'point-of-interest' ),
+            );
+
+            register_taxonomy(
+                taxonomy: 'poi',
+                object_type: ['post', 'rc-poi' ],
+                args: $args
+            );
+
 
         }
         // BUILD META BOXES
@@ -155,7 +184,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
         // ADD COLUMNS
         public function rcMapCPTColumns($columns)   {
 
-            // Hide or show columns
+            // Hide or show columns [ ** UPDATE BELOW ****
             unset($columns['date']);
           //$columns['post_id'] = esc_html('ID', 'rc-map');
             $columns['rc_poi_location_geo_code'] = esc_html( 'Geo Code', 'rc-map');
@@ -200,11 +229,11 @@ if (!class_exists('RC_POI_Post_Type ')) {
         public function rcMapSortableColumns($columns):array {
             $columns['rc_poi_location_geo_code'] = 'rc_poi_location_geo_code';
             $columns['rc_poi_location_address'] = 'rc_poi_location_address';
-            $columns['rc_poi_location_city'] = 'rc_poi_location_city';
-            $columns['rc_poi_location_state'] = 'rc_poi_location_state';
-            $columns['rc_poi_location_zip_code'] = 'rc_poi_location_zip_code';
-            $columns['rc_poi_location_phone'] = 'rc_poi_location_phone';
-            $columns['rc_poi_location_url'] = 'rc_poi_location_url';
+            //$columns['rc_poi_location_city'] = 'rc_poi_location_city';
+            //$columns['rc_poi_location_state'] = 'rc_poi_location_state';
+            //$columns['rc_poi_location_zip_code'] = 'rc_poi_location_zip_code';
+            //$columns['rc_poi_location_phone'] = 'rc_poi_location_phone';
+            //$columns['rc_poi_location_url'] = 'rc_poi_location_url';
             return $columns;
         }
 
