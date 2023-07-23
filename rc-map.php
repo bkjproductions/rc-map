@@ -41,12 +41,14 @@ if (!class_exists('RC_Map')) {
     class RC_Map{
         public function __construct()
         {
+            // DEFINE CONSTANTS
             $this->defineConstants();
 
-
-            // POST TYPE
+            // BUILD POST TYPE
             require_once ( RC_MAP_PATH . '/post_types/class.RC_POI_Post_Type.php' );
             $rc_poi_post_type = new RC_POI_Post_Type();
+
+
         }
         /**
          * Define global constants here
