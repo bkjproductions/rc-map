@@ -44,10 +44,17 @@ if (!class_exists('RC_Map')) {
             // DEFINE CONSTANTS
             $this->defineConstants();
 
+
             // BUILD POST TYPE
             require_once ( RC_MAP_PATH . '/post_types/class.RC_POI_Post_Type.php' );
             $rc_poi_post_type = new RC_POI_Post_Type();
 
+            // ADMIN MENU
+            add_action( 'admin_menu', array( $this, 'addMenu' ) );
+
+            // SETTINGS PAGE
+            require_once( RC_MAP_PATH . 'class.rc-map-settings.php' );
+            $rc_slider_settings = new RC_Map_Settings();
 
         }
         /**
@@ -88,6 +95,54 @@ if (!class_exists('RC_Map')) {
          * Uninstall
          */
         public static function uninstall(){
+
+        }
+        /**
+         * Build menus
+         */
+        public function addMenu(){
+            add_menu_page(
+                page_title: 'Map.js Options',
+                menu_title: 'Map.js',
+                capability: 'manage_options', // More on roles : https://wordpress.org/documentation/article/roles-and-capabilities/#capability-vs-role-table
+                menu_slug: 'rc_map_admin',
+                callback: array( $this, 'rcMapSettingsPage' ),
+                icon_url: 'dashicons-admin-site-alt',
+                position: 10
+            );
+            add_submenu_page(
+                parent_slug: 'rc_map_admin',
+                page_title: 'Manage POIs',
+                menu_title: 'Manage POIs',
+                capability: 'manage_options',
+                menu_slug: 'edit.php?post_type=rc-poi',
+                callback: null,
+                position: null
+            );
+
+            add_submenu_page(
+                parent_slug: 'rc_map_admin',
+                page_title: 'Add New POI',
+                menu_title: 'Add New POI',
+                capability: 'manage_options',
+                menu_slug: 'post-new.php?post_type=rc-poi',
+                callback: null,
+                position: null
+            );
+
+        }
+        public function rcMapSettingsPage():void {
+
+            if (!current_user_can('manage_options')) { return;}
+
+            if( isset( $_GET['settings-updated'] ) ){
+                add_settings_error( 'rc_map_options', 'rc_map_message', 'Settings Saved', 'success' );
+            }
+
+            settings_errors( 'rc_map_options' );
+
+            // HTML
+            require( RC_MAP_PATH . 'views/settings-page.php' );
 
         }
     }

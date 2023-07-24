@@ -56,7 +56,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
                 'exclude_from_search' => false,
                 'public' => true,
                 'publicly_queryable' => true,
-                'show_in_menu' => true, // we have custom menu - turn this off
+                'show_in_menu' => false, // we have custom menu - turn this off
                 'show_in_admin_bar' => true,
                 'query_var' => true,
                 'rewrite' => array('slug' => 'poi'),
