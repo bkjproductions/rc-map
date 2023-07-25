@@ -3,25 +3,26 @@
 
 if (!class_exists('RC_POI_Post_Type ')) {
     class RC_POI_Post_Type
-    {
-        public function __construct()
-        {
 
+    {
+        public RC_POI_Taxonomy_Views $poi_taxonomy;
+
+        public function __construct( )
+        {
 
             // CREATE POST TYPE
             add_action('init', [$this, 'createPostType'], 10);
 
-            // BUILD META BOXES
+            // BUILD POST META BOXES
             add_action('add_meta_boxes', [$this, 'addMetaBoxes']);
 
-            // ADD CUSTOM TAXONOMY
-            add_action( 'init', [$this, 'addTaxonomy'], 0 );
-
-            // SAVE META DATA
+            // SAVE POST META DATA
             add_action( 'save_post', [$this, 'savePost'], 10, 2 );
 
-            // ADMIN COLUMNS to include sortable meta data
+
+            // POST META ADMIN COLUMNS to include sortable meta data
             add_filter( 'manage_rc-poi_posts_columns', [$this, 'rcMapCPTColumns']);
+
 
             // POPULATE COLUMN DATA
             add_action( 'manage_rc-poi_posts_custom_column',
@@ -29,8 +30,9 @@ if (!class_exists('RC_POI_Post_Type ')) {
                 priority: 10,
                 accepted_args:2);
 
+
             // MAKE COLUMNS SORTABLE
-            add_filter( 'manage_edit-rc-poi_sortable_columns', [$this, 'rcMapSortableColumns'] );
+            add_action( 'manage_edit-rc-poi_sortable_columns', [$this, 'rcMapSortableColumns'] );
 
             // CUSTOM SEARCH - JOINS posts meta table with posts table ON rc-poi.post_id = ID
             add_action( 'pre_get_posts', array( $this, 'customSearchQuery' ) );
@@ -73,33 +75,8 @@ if (!class_exists('RC_POI_Post_Type ')) {
             register_post_type('rc-poi', $args);
 
         }
-        // ADD CUSTOM TAXONOMY
-        public function addTaxonomy (): void {
-            $labels = array(
-                'name'              => _x( 'Location Type', 'taxonomy general name' ),
-                'singular_name'     => _x( 'Location Type', 'taxonomy singular name' ),
-                // Add other labels as needed
-            );
 
-            $args = array(
-                'hierarchical'      => false, // You can choose hierarchical or non-hierarchical
-                'labels'            => $labels,
-                'show_ui'           => true,
-                'show_in_rest'      => true,
-                'show_admin_column' => true,
-                'query_var'         => true,
-                'rewrite'           => array( 'slug' => 'point-of-interest' ),
-            );
-
-            register_taxonomy(
-                taxonomy: 'poi',
-                object_type: ['post', 'rc-poi' ],
-                args: $args
-            );
-
-
-        }
-        // BUILD META BOXES
+        // BUILD POST META BOXES
         public function addMetaBoxes(): void
         {
             add_meta_box(
@@ -112,74 +89,113 @@ if (!class_exists('RC_POI_Post_Type ')) {
 
             );
         }
+
+        /**
+         * @param $post
+         * @return void
+         * hook:
+         */
         public function addInnerMetaBoxes ($post):void {
             require_once ( RC_MAP_PATH . 'views/rc-poi_meta_box.php');
         }
 
-        // SAVE POST
-        public function savePost($post_id ): void{
-
+        /**
+         * @param $post_id
+         * @return void
+         * hook: save_post
+         * purpose: Sanitizes and Validates the data.
+         */
+        public function savePost($post_id): void
+        {
             if (!$this->validateUser($post_id)) return;
 
+            if (isset($_POST['action']) && $_POST['action'] == 'editpost') {
+                $meta_fields = array(
+                    'rc_poi_location_url',
+                    'rc_poi_location_address',
+                    'rc_poi_location_city',
+                    'rc_poi_location_state',
+                    'rc_poi_location_zip_code',
+                    'rc_poi_location_phone',
+                    'rc_poi_location_geo_code',
+                );
 
-            if( isset( $_POST['action'] ) && $_POST['action'] == 'editpost' ){
-                $old_poi_url = get_post_meta( $post_id, 'rc_poi_location_url', true ); // single: return as string, false, return array
-                $old_poi_address = get_post_meta( $post_id, 'rc_poi_location_address', true ); // single: return as string, false, return array
-                $old_poi_city = get_post_meta( $post_id, 'rc_poi_location_city', true ); // single: return as string, false, return array
-                $old_poi_state = get_post_meta( $post_id, 'rc_poi_location_state', true ); // single: return as string, false, return array
-                $old_poi_zip_code = get_post_meta( $post_id, 'rc_poi_location_zip_code', true ); // single: return as string, false, return array
-                $old_poi_phone = get_post_meta( $post_id, 'rc_poi_location_phone', true ); // single: return as string, false, return array
-                $old_poi_geo_code = get_post_meta( $post_id, 'rc_poi_location_geo_code', true ); // single: return as string, false, return array
+                foreach ($meta_fields as $field) {
+                    $old_value = get_post_meta($post_id, $field, true);
+                    $new_value = isset($_POST[$field]) ? sanitize_text_field($_POST[$field]) : null;
 
-
-                $new_poi_url= $_POST['rc_poi_location_url'];
-                $new_poi_address = $_POST['rc_poi_location_address'];
-                $new_poi_city = $_POST['rc_poi_location_city'];
-                $new_poi_state = $_POST['rc_poi_location_state'];
-                $new_poi_zip_code = $_POST['rc_poi_location_zip_code'];
-                $new_poi_phone = $_POST['rc_poi_location_phone'];
-                $new_poi_geo_code = $_POST['rc_poi_location_geo_code'];
-
-
-                if( empty( $new_poi_url )){
-                    update_post_meta( $post_id, 'rc_poi_location_url', null );
-                }else{
-                    update_post_meta( $post_id, 'rc_poi_location_url', sanitize_text_field( $new_poi_url ), $old_poi_url );
+                    if (empty($new_value)) {
+                        update_post_meta($post_id, $field, null);
+                    } else {
+                        update_post_meta($post_id, $field, $new_value, $old_value);
+                    }
                 }
-                if( empty( $new_poi_address )){
-                    update_post_meta( $post_id, 'rc_poi_location_address', null );
-                }else{
-                    update_post_meta( $post_id, 'rc_poi_location_address', sanitize_text_field( $new_poi_address ), $old_poi_address );
-                }
-                if( empty( $new_poi_city )){
-                    update_post_meta( $post_id, 'rc_poi_location_city', null );
-                }else{
-                    update_post_meta( $post_id, 'rc_poi_location_city', sanitize_text_field( $new_poi_city ), $old_poi_city );
-                }
-                if( empty( $new_poi_state )){
-                    update_post_meta( $post_id, 'rc_poi_location_state', null );
-                }else{
-                    update_post_meta( $post_id, 'rc_poi_location_state', sanitize_text_field( $new_poi_state ), $old_poi_state );
-                }
-                if( empty( $new_poi_zip_code )){
-                    update_post_meta( $post_id, 'rc_poi_location_zip_code', null );
-                }else{
-                    update_post_meta( $post_id, 'rc_poi_location_zip_code', sanitize_text_field( $new_poi_zip_code ), $old_poi_zip_code );
-                }
-                if( empty( $new_poi_phone )){
-                    update_post_meta( $post_id, 'rc_poi_location_phone', null );
-                }else{
-                    update_post_meta( $post_id, 'rc_poi_location_phone', sanitize_text_field( $new_poi_phone ), $old_poi_phone );
-                }
-                if( empty( $new_poi_geo_code )){
-                    update_post_meta( $post_id, 'rc_poi_location_geo_code', null );
-                }else{
-                    update_post_meta( $post_id, 'rc_poi_location_geo_code', sanitize_text_field( $new_poi_geo_code ), $old_poi_geo_code );
-                }
-
-
             }
         }
+        // SAVE POST
+//        public function savePost($post_id ): void{
+//
+//            if (!$this->validateUser($post_id)) return;
+//
+//
+//            if( isset( $_POST['action'] ) && $_POST['action'] == 'editpost' ){
+//                $old_poi_url = get_post_meta( $post_id, 'rc_poi_location_url', true ); // single: return as string, false, return array
+//                $old_poi_address = get_post_meta( $post_id, 'rc_poi_location_address', true ); // single: return as string, false, return array
+//                $old_poi_city = get_post_meta( $post_id, 'rc_poi_location_city', true ); // single: return as string, false, return array
+//                $old_poi_state = get_post_meta( $post_id, 'rc_poi_location_state', true ); // single: return as string, false, return array
+//                $old_poi_zip_code = get_post_meta( $post_id, 'rc_poi_location_zip_code', true ); // single: return as string, false, return array
+//                $old_poi_phone = get_post_meta( $post_id, 'rc_poi_location_phone', true ); // single: return as string, false, return array
+//                $old_poi_geo_code = get_post_meta( $post_id, 'rc_poi_location_geo_code', true ); // single: return as string, false, return array
+//
+//
+//                $new_poi_url= $_POST['rc_poi_location_url'];
+//                $new_poi_address = $_POST['rc_poi_location_address'];
+//                $new_poi_city = $_POST['rc_poi_location_city'];
+//                $new_poi_state = $_POST['rc_poi_location_state'];
+//                $new_poi_zip_code = $_POST['rc_poi_location_zip_code'];
+//                $new_poi_phone = $_POST['rc_poi_location_phone'];
+//                $new_poi_geo_code = $_POST['rc_poi_location_geo_code'];
+//
+//
+//                if( empty( $new_poi_url )){
+//                    update_post_meta( $post_id, 'rc_poi_location_url', null );
+//                }else{
+//                    update_post_meta( $post_id, 'rc_poi_location_url', sanitize_text_field( $new_poi_url ), $old_poi_url );
+//                }
+//                if( empty( $new_poi_address )){
+//                    update_post_meta( $post_id, 'rc_poi_location_address', null );
+//                }else{
+//                    update_post_meta( $post_id, 'rc_poi_location_address', sanitize_text_field( $new_poi_address ), $old_poi_address );
+//                }
+//                if( empty( $new_poi_city )){
+//                    update_post_meta( $post_id, 'rc_poi_location_city', null );
+//                }else{
+//                    update_post_meta( $post_id, 'rc_poi_location_city', sanitize_text_field( $new_poi_city ), $old_poi_city );
+//                }
+//                if( empty( $new_poi_state )){
+//                    update_post_meta( $post_id, 'rc_poi_location_state', null );
+//                }else{
+//                    update_post_meta( $post_id, 'rc_poi_location_state', sanitize_text_field( $new_poi_state ), $old_poi_state );
+//                }
+//                if( empty( $new_poi_zip_code )){
+//                    update_post_meta( $post_id, 'rc_poi_location_zip_code', null );
+//                }else{
+//                    update_post_meta( $post_id, 'rc_poi_location_zip_code', sanitize_text_field( $new_poi_zip_code ), $old_poi_zip_code );
+//                }
+//                if( empty( $new_poi_phone )){
+//                    update_post_meta( $post_id, 'rc_poi_location_phone', null );
+//                }else{
+//                    update_post_meta( $post_id, 'rc_poi_location_phone', sanitize_text_field( $new_poi_phone ), $old_poi_phone );
+//                }
+//                if( empty( $new_poi_geo_code )){
+//                    update_post_meta( $post_id, 'rc_poi_location_geo_code', null );
+//                }else{
+//                    update_post_meta( $post_id, 'rc_poi_location_geo_code', sanitize_text_field( $new_poi_geo_code ), $old_poi_geo_code );
+//                }
+//
+//
+//            }
+//        }
 
         // ADD COLUMNS
         public function rcMapCPTColumns($columns)   {
@@ -187,6 +203,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
             // Hide or show columns [ ** UPDATE BELOW ****
             unset($columns['date']);
           //$columns['post_id'] = esc_html('ID', 'rc-map');
+
             $columns['rc_poi_location_geo_code'] = esc_html( 'Geo Code', 'rc-map');
             $columns['rc_poi_location_address'] = esc_html( 'Address', 'rc-map');
           //$columns['rc_poi_location_city'] = esc_html( 'City', 'rc-map');
@@ -197,6 +214,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
 
             return $columns;
         }
+
 
         // POPULATE COLUMNS
         public function rcMapCustomColumns($column, $post_id):void {
@@ -225,10 +243,12 @@ if (!class_exists('RC_POI_Post_Type ')) {
             }
         }
 
+
         // SORTABLE COLUMNS
         public function rcMapSortableColumns($columns):array {
-            $columns['rc_poi_location_geo_code'] = 'rc_poi_location_geo_code';
-            $columns['rc_poi_location_address'] = 'rc_poi_location_address';
+            //$columns[ 'taxonomy-poi'] = 'taxonomy-poi';
+            //$columns['rc_poi_location_geo_code'] = 'rc_poi_location_geo_code';
+            //$columns['rc_poi_location_address'] = 'rc_poi_location_address';
             //$columns['rc_poi_location_city'] = 'rc_poi_location_city';
             //$columns['rc_poi_location_state'] = 'rc_poi_location_state';
             //$columns['rc_poi_location_zip_code'] = 'rc_poi_location_zip_code';
@@ -239,7 +259,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
 
         // SEARCHABLE META DATA
 
-        public function customSearchQuery($query): void {
+        public function customSearchQuery($query) {
             $post_type = 'rc-poi';
             if ($query->query['post_type'] != $post_type) {
                 return;
@@ -256,7 +276,21 @@ if (!class_exists('RC_POI_Post_Type ')) {
 
                 // Join the postmeta table for custom meta fields search
                 add_action( 'posts_join', [$this, 'joinDatabaseColumns'] );
+
+
             }
+
+//            if ( 'rc_poi_location_address' === $query->get('orderby')){
+//                $query->set('orderby' , 'meta_value');
+//                $query->set('meta_key' , 'rc_poi_location_address');
+//            }
+//            if ( 'rc_poi_location_geo_code' === $query->get('orderby')){
+//                $query->set('orderby' , 'meta_value');
+//                $query->set('meta_key' , 'rc_poi_location_geo_code');
+//            }
+
+
+
         }
         public function distinctColumns (): string
         {

@@ -49,6 +49,10 @@ if (!class_exists('RC_Map')) {
             require_once ( RC_MAP_PATH . '/post_types/class.RC_POI_Post_Type.php' );
             $rc_poi_post_type = new RC_POI_Post_Type();
 
+            // BUILD TAXONOMY TYPE
+            require_once( RC_MAP_PATH . '/post_types/class.RC_POI_Term_Type.php');
+            $rc_poi_term_type = new RC_POI_Term_Type();
+
             // ADMIN MENU
             add_action( 'admin_menu', array( $this, 'addMenu' ) );
 
@@ -126,6 +130,16 @@ if (!class_exists('RC_Map')) {
                 menu_title: 'Add New POI',
                 capability: 'manage_options',
                 menu_slug: 'post-new.php?post_type=rc-poi',
+                callback: null,
+                position: null
+            );
+
+            add_submenu_page(
+                parent_slug: 'rc_map_admin',
+                page_title: 'Location Types',
+                menu_title: 'Location Types',
+                capability: 'manage_options',
+                menu_slug: 'edit-tags.php?taxonomy=poi&post_type=rc-poi',
                 callback: null,
                 position: null
             );

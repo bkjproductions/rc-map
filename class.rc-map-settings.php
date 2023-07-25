@@ -10,11 +10,17 @@ if( ! class_exists( 'RC_Map_Settings' )) {
         {
             self::$options = get_option('rc_map_options');
             add_action('admin_init', array($this, 'adminInit'));
+
+            add_action( 'admin_post_run_custom_script', [ $this, 'handle_map_import_script' ] );
+
         }
 
         public function adminInit():void {
                 // More about settings API: http://presscoders.com/wordpress-settings-api-explained/
             register_setting( 'rc_map_group', 'rc_map_options',[$this, 'rcMapValidate' ]);
+            register_setting(
+                    option_group: 'rc_map_group',
+                    option_name: 'rc_map_load_style');
 
 
             // PAGE 1 ***************************** //
@@ -86,10 +92,35 @@ if( ! class_exists( 'RC_Map_Settings' )) {
                 'rc_map_second_section'
             );
 
+            // PAGE 3 ***************************** //
+            add_settings_section(
+                id:'rc_map_third_section',
+                title: 'Load Map Styles',
+                callback: [$this, 'displayAllTabbedData'],
+                page: 'rc_map_page3',
+                args: null
 
+            );
 
+            add_settings_field(
+                id: 'rc_map_load_style',
+                title: 'Paste Snazzy JSON',
+                callback: [ $this, 'rcMapLoadStyleCallback'],
+                page: 'rc_map_page3',
+                section: 'rc_map_third_section',
+                args: []
+            );
 
+            // PAGE 4 ***************************** //
+            // THIS HTML IS IN THE settings-page.php file
+            add_settings_section(
+                id:'rc_map_fourth_section',
+                title: 'Load Map Data',
+                callback: null,
+                page: 'rc_map_page4',
+                args: null
 
+            );
 
         }
 
@@ -113,6 +144,7 @@ if( ! class_exists( 'RC_Map_Settings' )) {
         }
 
         // PAGE 2 HTML ******************************** /
+
         public function rcMapApiKeyCallback(): void
         {
 
@@ -144,7 +176,7 @@ if( ! class_exists( 'RC_Map_Settings' )) {
         public function rcMapStyleCallback( $args ) : void{
             ?>
             <select
-                    id="rc`_map_style"
+                    id="rc_map_style"
                     name="rc_map_options[rc_map_style]">
                 <?php
                 foreach( $args['items'] as $item ):
@@ -160,7 +192,32 @@ if( ! class_exists( 'RC_Map_Settings' )) {
             </select>
             <?php
         }
+        // PAGE 3 HTML ******************************** /
 
+        public function rcMapLoadStyleCallback():void {
+            $snazzy_map = get_option('rc_map_load_style');
+            ?>
+            <textarea name="rc_map_load_style" id="rc_map_load_style" cols="60" rows="30"><?php echo $snazzy_map ?></textarea>
+            <?php
+        }
+
+        // Callback function to handle the custom script
+        #[NoReturn] public function handle_map_import_script(): void
+        {
+
+            // TODO: NEED TO ADD THIS SECURITY CHECK
+            // Verify the nonce for security
+//            if ( ! isset( $_POST['custom_action_nonce'] ) || ! wp_verify_nonce( $_POST['custom_action_nonce'], 'custom_action' ) ) {
+//                wp_die( 'Invalid nonce.' );
+//            }
+
+            require_once ( RC_MAP_PATH . 'includes/import.php' );
+
+            // Redirect back to the admin page after processing
+            //wp_safe_redirect( admin_url( 'admin.php?page=rc_map_admin&tab=load_map_data_options' ) );
+            wp_safe_redirect( admin_url( 'edit.php?post_type=rc-poi' ) );
+            exit;
+        }
         public function rcMapValidate( $input ): array
         {
             // Use switch for different types of fields: text|url|number
@@ -182,6 +239,7 @@ if( ! class_exists( 'RC_Map_Settings' )) {
         }
         public function displayAllTabbedData():void {
             // These fields need to load
+            $map_style_json  = get_option('rc_map_load_style');
             ?>
             <input type="hidden"
                    id="rc_map_zoom"
@@ -205,6 +263,11 @@ if( ! class_exists( 'RC_Map_Settings' )) {
                     name="rc_map_options[rc_map_style]"
                     id="rc_map_style"
                     value="<?php echo isset( self::$options['rc_map_style'] ) ? esc_attr( self::$options['rc_map_style'] ) : ''; ?>"
+            >
+            <input type="hidden"
+                   id="rc_map_load_style"
+                   name="rc_map_load_style"
+                   value="<?php echo esc_attr($map_style_json) ?? ''; ?>"
             >
             <?php
         }
