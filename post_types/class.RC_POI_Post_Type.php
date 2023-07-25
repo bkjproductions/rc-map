@@ -35,7 +35,12 @@ if (!class_exists('RC_POI_Post_Type ')) {
             add_action( 'manage_edit-rc-poi_sortable_columns', [$this, 'rcMapSortableColumns'] );
 
             // CUSTOM SEARCH - JOINS posts meta table with posts table ON rc-poi.post_id = ID
-            add_action( 'pre_get_posts', array( $this, 'customSearchQuery' ) );
+            add_action( 'pre_get_posts', array( $this, 'customSearchQuery' ), 100 );
+
+            // ADD RESET SEARCH BUTTON
+            add_action('restrict_manage_posts', [$this,'addResetButtonToSearchForm']);
+
+
         }
 
         // CREATE POST TYPE
@@ -255,8 +260,8 @@ if (!class_exists('RC_POI_Post_Type ')) {
         // SORTABLE COLUMNS
         public function rcMapSortableColumns($columns):array {
             //$columns[ 'taxonomy-poi'] = 'taxonomy-poi';
-            //$columns['rc_poi_location_geo_code'] = 'rc_poi_location_geo_code';
-            //$columns['rc_poi_location_address'] = 'rc_poi_location_address';
+            $columns['rc_poi_location_geo_code'] = 'rc_poi_location_geo_code';
+            $columns['rc_poi_location_address'] = 'rc_poi_location_address';
             //$columns['rc_poi_location_city'] = 'rc_poi_location_city';
             //$columns['rc_poi_location_state'] = 'rc_poi_location_state';
             //$columns['rc_poi_location_zip_code'] = 'rc_poi_location_zip_code';
@@ -268,35 +273,51 @@ if (!class_exists('RC_POI_Post_Type ')) {
         // SEARCHABLE META DATA
 
         public function customSearchQuery($query) {
-            $post_type = 'rc-poi';
-            if ($query->query['post_type'] != $post_type) {
-                return;
+
+            if ( isset( $_GET['reset-search'] )) {
+                // Redirect back to the posts list table without the search query
+                wp_redirect( admin_url( 'edit.php?post_type=rc-poi' ) );
+                exit;
             }
+
+            $post_type = 'rc-poi';
+
+            if (!$query->is_main_query() || $query->get('post_type') !== $post_type) {
+                return $query;
+            }
+
+            if ( 'rc_poi_location_address' === $query->get('orderby')){
+
+
+                $query->set('orderby' , 'meta_value');
+                $query->set('meta_key' , 'rc_poi_location_address');
+
+
+            }
+            if ( 'rc_poi_location_geo_code' === $query->get('orderby')){
+                $query->set('orderby' , 'meta_value');
+                $query->set('meta_key' , 'rc_poi_location_geo_code');
+            }
+
             if ( is_search() ) {
-                // global $wp_query;
+                global $wp_query;
                 // error_log(print_r($wp_query->get_queried_object(),true));
 
                 // Prevent duplicates in the search results
-                add_filter( 'posts_distinct', [$this, 'distinctColumns']);
+                add_filter( 'posts_distinct', [$this, 'distinctColumns'],100);
 
                 // Modify the WHERE clause to include custom meta fields in the search
-                add_filter( 'posts_where', [$this, 'whereClauseAdjustment'] );
+                add_filter( 'posts_where', [$this, 'whereClauseAdjustment'],10 );
 
                 // Join the postmeta table for custom meta fields search
-                add_action( 'posts_join', [$this, 'joinDatabaseColumns'] );
+                add_action( 'posts_join', [$this, 'joinDatabaseColumns'],1 );
 
 
             }
 
-//            if ( 'rc_poi_location_address' === $query->get('orderby')){
-//                $query->set('orderby' , 'meta_value');
-//                $query->set('meta_key' , 'rc_poi_location_address');
-//            }
-//            if ( 'rc_poi_location_geo_code' === $query->get('orderby')){
-//                $query->set('orderby' , 'meta_value');
-//                $query->set('meta_key' , 'rc_poi_location_geo_code');
-//            }
 
+            $results = get_posts($query);
+            //error_log(print_r($results,true));
 
 
         }
@@ -307,6 +328,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
         public function whereClauseAdjustment($where){
             global $wpdb;
             $search_term = get_search_query();
+            error_log($where);
             if ( !empty($search_term) ) {
                 // ADD the unique alias '{plugin}_pm'
 
@@ -319,11 +341,23 @@ if (!class_exists('RC_POI_Post_Type ')) {
         public function joinDatabaseColumns($join){
             global $wpdb;
             // Check if the wp_postmeta table is already joined
-            if (strpos($join, $wpdb->postmeta) === false) {
-                // If not joined, then add the LEFT JOIN clause with the unique alias '{plugin}_pm'
-                $join .= ' LEFT JOIN ' . $wpdb->postmeta . ' AS rc_map_pm ON ' . $wpdb->posts . '.ID = rc_map_pm.post_id ';
-            }
+//            if (strpos($join, $wpdb->postmeta) === false) {
+//                // If not joined, then add the LEFT JOIN clause with the unique alias '{plugin}_pm'
+//                $join .= ' LEFT JOIN ' . $wpdb->postmeta . ' AS rc_map_pm ON ' . $wpdb->posts . '.ID = rc_map_pm.post_id ';
+//            }
+            $join .= ' LEFT JOIN ' . $wpdb->postmeta . ' AS rc_map_pm ON ' . $wpdb->posts . '.ID = rc_map_pm.post_id ';
+
             return $join;
+        }
+        public function addResetButtonToSearchForm(): void
+        {
+            if (isset($_GET['post_type']) && $_GET['post_type'] === 'rc-poi'){
+            ?>
+<!--                <input type="search" id="post-search-input" name="s" value="--><?php //echo esc_attr( get_search_query() ); ?><!--" />-->
+                <button style="border: tomato solid 1px;" type="submit" name="reset-search" class="button">Reset POI Search Filters</button>
+
+            <?php
+            }
         }
         private function validateUser($post_id):bool {
             if( isset( $_POST['rc_map_nonce'] ) ){

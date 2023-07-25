@@ -46,19 +46,19 @@ if (!class_exists('RC_Map')) {
 
 
             // BUILD POST TYPE
-            require_once ( RC_MAP_PATH . '/post_types/class.RC_POI_Post_Type.php' );
+            require_once(RC_MAP_PATH . '/post_types/class.RC_POI_Post_Type.php');
             $rc_poi_post_type = new RC_POI_Post_Type();
 
             // BUILD TAXONOMY TYPE
-            require_once( RC_MAP_PATH . '/post_types/class.RC_POI_Term_Type.php');
+            require_once(RC_MAP_PATH . '/post_types/class.RC_POI_Term_Type.php');
             $rc_poi_term_type = new RC_POI_Term_Type();
 
             // ADMIN MENU
-            add_action( 'admin_menu', array( $this, 'addMenu' ) );
+            add_action('admin_menu', array($this, 'addMenu'));
 
             // SETTINGS PAGE
-            require_once( RC_MAP_PATH . 'class.rc-map-settings.php' );
-            $rc_slider_settings = new RC_Map_Settings();
+            require_once(RC_MAP_PATH . 'class.rc-map-settings.php');
+            $rc_map_settings = new RC_Map_Settings();
 
         }
         /**
@@ -114,6 +114,19 @@ if (!class_exists('RC_Map')) {
                 icon_url: 'dashicons-admin-site-alt',
                 position: 10
             );
+
+            // CUSTOM WP_LIST_TABLE Class
+
+//            add_submenu_page(
+//                parent_slug: 'rc_map_admin',
+//                page_title: 'Manage POIs',
+//                menu_title: 'POIs',
+//                capability: 'manage_options',
+//                menu_slug: 'edit-rc-poi',
+//                callback: [$this, 'listPoiPage'],
+//                position: null
+//            );
+
             add_submenu_page(
                 parent_slug: 'rc_map_admin',
                 page_title: 'Manage POIs',
@@ -159,6 +172,15 @@ if (!class_exists('RC_Map')) {
             require( RC_MAP_PATH . 'views/settings-page.php' );
 
         }
+
+        public function listPoiPage():void {
+
+            if (!current_user_can('activate_plugins')) { return;}
+
+            // HTML
+            require( RC_MAP_PATH . 'views/poi-list-page.php' );
+
+        }
     }
 
 }
@@ -169,6 +191,9 @@ if (class_exists('RC_Map')) {
     register_deactivation_hook(__FILE__, ['RC_Map', 'deactivate']);
     register_uninstall_hook(__FILE__, ['RC_Map', 'uninstall']);
 
+
     $rc_map = new RC_Map();
+
+
 
 }

@@ -26,7 +26,7 @@
                 do_settings_sections('rc_map_page4');
 
                 ?>
-                <span><strong>title | address | </strong></span>
+                <div style="padding-bottom: 1rem;" "><strong>name | address | city | state | zip_code | url | geo_code</strong></div>
                  <input type="hidden" name="action" value="run_custom_script">
 
                  <textarea style="white-space: nowrap" id="rc_map_data" name="rc_map_data" rows="20" cols="80">Paste tab separated data here.</textarea>
