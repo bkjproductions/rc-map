@@ -107,6 +107,14 @@ if (!class_exists('RC_POI_Post_Type ')) {
          */
         public function savePost($post_id): void
         {
+            $current_screen = get_current_screen();
+            if (!isset($current_screen)) return;
+
+            if ( $current_screen->id != 'rc-poi' || $current_screen->post_type != 'rc-poi' ) {
+                return;
+            }
+
+
             if (!$this->validateUser($post_id)) return;
 
             if (isset($_POST['action']) && $_POST['action'] == 'editpost') {
