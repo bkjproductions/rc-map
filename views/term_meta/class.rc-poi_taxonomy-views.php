@@ -15,10 +15,13 @@ if (!class_exists('RC_POI_Taxonomy_Views')){
             add_action( 'created_poi', [$this, 'saveTaxonomyMetaBoxes'] );
             add_action( 'edited_poi', [$this, 'saveTaxonomyMetaBoxes' ]);
             add_action( 'admin_print_footer_scripts-edit-tags.php', [$this, 'getTaxonomyData']);
+            add_action( 'updated_term_meta',[$this, 'handleAfterUpdateTermMeta']);
 
             // QUICK EDIT META DATA:
             add_action('quick_edit_custom_box', [$this, 'quickEditCustomBox' ],10,2);
             add_action('save_post_poi', [$this, 'savePostPOI']);
+
+
 
         }
 
@@ -165,6 +168,12 @@ if (!class_exists('RC_POI_Taxonomy_Views')){
             // Save the custom meta value
             $meta_value = sanitize_text_field($_POST['rc_poi_tax_color']);
             update_term_meta($term_id, 'rc_poi_tax_color', $meta_value);
+        }
+
+        public function handleAfterUpdateTermMeta():void{
+            include_once(RC_MAP_PATH . 'includes/process.php');
+
+
         }
     }
 }

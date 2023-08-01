@@ -94,6 +94,21 @@ $poi_geo_code = get_post_meta( $post->ID, 'rc_poi_location_geo_code', true ); //
     </tr>
     <tr>
         <th>
+            <label for="rc_poi_location_address">Phone</label>
+        </th>
+        <td>
+            <input
+                    type="text"
+                    name="rc_poi_location_phone"
+                    id="rc_poi_location_phone"
+                    class="regular-text link-text"
+                    value="<?php echo ( isset( $poi_phone ) ) ? esc_html( $poi_phone ) : ''; ?>"
+
+            >
+        </td>
+    </tr>
+    <tr>
+        <th>
             <label for="rc_poi_location_url">URL</label>
         </th>
         <td>

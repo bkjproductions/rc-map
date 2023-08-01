@@ -196,8 +196,6 @@ if (!class_exists('POI_List_Table')) {
             return ($order === 'asc') ? $result : -$result;
         }
 
-
-
     }
 }
 

@@ -17,8 +17,8 @@ if (isset($_POST['rc_map_data'])) {
         $poi_city = isset($data_items[2]) ? sanitize_text_field($data_items[2]) : '';
         $poi_state = isset($data_items[3]) ? sanitize_text_field($data_items[3]) : '';
         $poi_zip_code = isset($data_items[4]) ? sanitize_text_field($data_items[4]) : '';
-        $poi_phone = isset($data_items[5]) ? sanitize_text_field($data_items[5]) : '';
-        $poi_url = isset($data_items[6]) ? sanitize_url($data_items[6]) : '';
+        $poi_url = isset($data_items[5]) ? sanitize_url($data_items[5]) : '';
+        $poi_phone = isset($data_items[6]) ? sanitize_text_field($data_items[6]) : '';
         $poi_category = isset($data_items[7]) ? sanitize_text_field($data_items[7]) : '';
         $poi_geo_code = isset($data_items[8]) ? sanitize_text_field($data_items[8]) : '';
 
@@ -48,7 +48,7 @@ if (isset($_POST['rc_map_data'])) {
 
 
             if (isset($data_items[7])) { // Assuming "categories" column is at index 7
-                error_log($data_items[7]);
+
                 $tags = explode(',', $data_items[7]);
                 $tags = array_map('trim', $tags);
 
@@ -79,7 +79,6 @@ if (isset($_POST['rc_map_data'])) {
             }
         }
 
-        // Optionally, you can perform other tasks after processing all the data
-        // ...
+
     }
 }

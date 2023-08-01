@@ -1,6 +1,8 @@
 <?php
 
 
+use JetBrains\PhpStorm\NoReturn;
+
 if (!class_exists('RC_POI_Post_Type ')) {
     class RC_POI_Post_Type
 
@@ -39,6 +41,11 @@ if (!class_exists('RC_POI_Post_Type ')) {
 
             // ADD RESET SEARCH BUTTON
             add_action('restrict_manage_posts', [$this,'addResetButtonToSearchForm']);
+
+            // HANDLE DELETE POSTS:
+            add_action('wp_ajax_rc_delete_post',[$this,'ajaxDeletePostData']);
+            // HANDLE BULK DELETE POSTS: in this form: 'wp_ajax_{action}' [sent from data request]
+            add_action('wp_ajax_rc_bulk_delete_post',[$this,'ajaxBulkDeletePostData']);
 
 
         }
@@ -102,6 +109,55 @@ if (!class_exists('RC_POI_Post_Type ')) {
          */
         public function addInnerMetaBoxes ($post):void {
             require_once ( RC_MAP_PATH . 'views/rc-poi_meta_box.php');
+        }
+
+        /**
+         * @return void
+         * purpose: Handles ajax delete request from admin list table
+         */
+        #[NoReturn] public function ajaxDeletePostData (): void
+        {
+            // Check the AJAX nonce
+            check_ajax_referer('rc_rest', 'nonce', true);
+
+            $post_id = intval($_POST['post_id']);
+            if (current_user_can('delete_post', $post_id)) {
+                // Delete the post
+                wp_delete_post($post_id, true);
+
+                // Return a success response
+                echo json_encode(array('success' => true));
+            } else {
+                // Return an error response
+                echo json_encode(array('error' => 'Insufficient permissions.'));
+            }
+
+            // Make sure to exit the function after processing the AJAX request
+            wp_die();
+        }
+
+        #[NoReturn] public function ajaxBulkDeletePostData():void{
+            // Check the AJAX nonce
+            check_ajax_referer('rc_rest', 'nonce', true);
+
+            $post_ids = $_POST['post_ids'] ?? [];
+            if (current_user_can('delete_post', $post_ids)) {
+                // Delete the post
+
+                foreach ($post_ids as $post_id){
+                    wp_delete_post($post_id, true);
+                }
+
+                // Return a success response
+                echo json_encode(array('success' => true));
+
+            } else {
+                // Return an error response
+                echo json_encode(array('error' => 'Insufficient permissions.'));
+            }
+
+            // Make sure to exit the function after processing the AJAX request
+            wp_die();
         }
 
         /**
@@ -269,6 +325,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
             //$columns['rc_poi_location_url'] = 'rc_poi_location_url';
             return $columns;
         }
+
 
         // SEARCHABLE META DATA
 

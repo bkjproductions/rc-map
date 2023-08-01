@@ -39,6 +39,9 @@ if (!defined('ABSPATH')) {
  */
 if (!class_exists('RC_Map')) {
     class RC_Map{
+
+        private RC_Map_Settings $rc_map_settings;
+
         public function __construct()
         {
             // DEFINE CONSTANTS
@@ -56,10 +59,71 @@ if (!class_exists('RC_Map')) {
             // ADMIN MENU
             add_action('admin_menu', array($this, 'addMenu'));
 
-            // SETTINGS PAGE
+            // SETTINGS PAGE + STATIC METHOD options
             require_once(RC_MAP_PATH . 'class.rc-map-settings.php');
-            $rc_map_settings = new RC_Map_Settings();
+            $this->rc_map_settings = new RC_Map_Settings();
 
+            // SHORTCODE
+            require_once(RC_MAP_PATH . 'shortcodes/class.rc-map-shortcode.php');
+            $rc_poi_shortcode = new RC_Map_Shortcode();
+
+
+            // ENQUEUE ADMIN SCRIPTS
+            add_action('admin_enqueue_scripts',[$this, 'enqueueDatatables'],1);
+            add_action('admin_enqueue_scripts',[$this, 'enqueueScriptsAndStyles'],2);
+
+            // ENQUEUE FRONTEND SCRIPTS
+            add_action('wp_enqueue_scripts', [$this, 'enqueueFrontendScripts']);
+
+
+
+        }
+
+        function enqueueScriptsAndStyles(): void {
+            // Get the current screen object
+            $current_screen = get_current_screen();
+            // Check if we are on the specific page ('map-js_page_edit-rc-poi')
+            if ($current_screen && $current_screen->id === 'map-js_page_edit-rc-poi') {
+                // Enqueue the scripts and styles
+                wp_enqueue_script('rc-index-js', RC_MAP_URL . 'src/js/index.js', [], '1-' .time(), false);
+                wp_enqueue_style('rc-styles-js', RC_MAP_URL . 'src/css/styles.css', array(), '1-' .time());
+
+                wp_localize_script('rc-index-js', 'globalSiteData', [
+                    'siteUrl' => get_site_url(),
+                    'nonceX' => wp_create_nonce('rc_rest'),
+                    'ajax_url' => admin_url('admin-ajax.php')
+                ]);
+            }
+
+
+        }
+        function enqueueFrontendScripts():void {
+            // Load Google Map file
+
+            wp_enqueue_script('rc-google-map-js', RC_MAP_URL . 'src/js/initMap.js', [], '1-' . time(), true);
+            // Enqueue Google Maps API with the initMap callback
+            $api_key = esc_html(RC_Map_Settings::$options['rc_map_api_key']);
+            wp_enqueue_script(
+                'google-maps',
+                'https://maps.googleapis.com/maps/api/js?key=' . $api_key . '&callback=initMap',
+                ['rc-google-map-js'],
+                null,
+                true
+            );
+
+            wp_enqueue_style('rc-map-css', RC_MAP_URL . 'src/css/rc-map.css',[], '1-' . time());
+        }
+        function enqueueDatatables(): void
+        {
+            $query = new WP_Query([
+                'post-type' => 'rc-poi',
+                'posts_per_page' => 1
+            ]);
+            if ($query->have_posts()) {
+                wp_enqueue_script('jquery'); // Make sure jQuery is loaded first
+                wp_enqueue_script('datatables', RC_MAP_URL . 'vendor/DataTables/datatables.js', array('jquery'), '1.13.5', true);
+                wp_enqueue_style('datatables', RC_MAP_URL . 'vendor/DataTables/datatables.css', array(), '1.13.5');
+            }
         }
         /**
          * Define global constants here
@@ -69,6 +133,7 @@ if (!class_exists('RC_Map')) {
             define ( 'RC_MAP_PATH' , plugin_dir_path( __FILE__ ));
             define ( 'RC_MAP_URL' , plugin_dir_url( __FILE__ ));
             define ( 'RC_MAP_VERSION' , '1.0.0' );
+            define ( 'RC_TEXT_DOMAIN', 'rc-map');
 
         }
         /**
@@ -117,25 +182,32 @@ if (!class_exists('RC_Map')) {
 
             // CUSTOM WP_LIST_TABLE Class
 
-//            add_submenu_page(
-//                parent_slug: 'rc_map_admin',
-//                page_title: 'Manage POIs',
-//                menu_title: 'POIs',
-//                capability: 'manage_options',
-//                menu_slug: 'edit-rc-poi',
-//                callback: [$this, 'listPoiPage'],
-//                position: null
-//            );
+            if ( isset($this->rc_map_settings::$options_6['rc_map_use_data_tables_js']) &&
+                    $this->rc_map_settings::$options_6['rc_map_use_data_tables_js']
+                ){
+                add_submenu_page(
+                    parent_slug: 'rc_map_admin',
+                    page_title: __('Manage POIs', RC_TEXT_DOMAIN),
+                    menu_title: 'POIs',
+                    capability: 'manage_options',
+                    menu_slug: 'edit-rc-poi',
+                    callback: [$this, 'listPoiPage'],
+                    position: null
+                );
+            }else {
+                add_submenu_page(
+                    parent_slug: 'rc_map_admin',
+                    page_title: 'Manage POIs',
+                    menu_title: 'Manage POIs',
+                    capability: 'manage_options',
+                    menu_slug: 'edit.php?post_type=rc-poi',
+                    callback: null,
+                    position: null
+                );
+            }
 
-            add_submenu_page(
-                parent_slug: 'rc_map_admin',
-                page_title: 'Manage POIs',
-                menu_title: 'Manage POIs',
-                capability: 'manage_options',
-                menu_slug: 'edit.php?post_type=rc-poi',
-                callback: null,
-                position: null
-            );
+
+
 
             add_submenu_page(
                 parent_slug: 'rc_map_admin',
