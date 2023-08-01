@@ -44,6 +44,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
 
             // HANDLE DELETE POSTS:
             add_action('wp_ajax_rc_delete_post',[$this,'ajaxDeletePostData']);
+
             // HANDLE BULK DELETE POSTS: in this form: 'wp_ajax_{action}' [sent from data request]
             add_action('wp_ajax_rc_bulk_delete_post',[$this,'ajaxBulkDeletePostData']);
 

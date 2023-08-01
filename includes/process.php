@@ -38,6 +38,7 @@ class ProcessMap
         $this->mapData = [];
         // Process template file
 
+
     }
     public function generateMap(): void
     {
@@ -168,8 +169,13 @@ class ProcessMap
 
     }
     private function getSnazzyStyle():string{
-
-        return get_option('rc_map_load_style');
+        $default_style = get_option('rc_map_load_style');
+        $selected_style = RC_Map_Settings::$options['rc_map_style'];
+        $map_styles = RC_Map_Settings::$options_styles;
+        if (!$map_styles){
+            return $default_style;
+        }
+        return $map_styles[$selected_style];
 
     }
 
@@ -297,7 +303,7 @@ class ProcessMap
             $javascriptContent
         );
 
-        error_log("Map DATA:" . print_r($this->markers,true));
+       // error_log("Map DATA:" . print_r($this->markers,true));
 
         // Save the generated JavaScript to a file
 

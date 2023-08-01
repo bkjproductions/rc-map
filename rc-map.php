@@ -98,6 +98,10 @@ if (!class_exists('RC_Map')) {
 
         }
         function enqueueFrontendScripts():void {
+            // Some cache busting:
+
+
+
             // Load Google Map file
 
             wp_enqueue_script('rc-google-map-js', RC_MAP_URL . 'src/js/initMap.js', [], '1-' . time(), true);

@@ -88,7 +88,7 @@
 
 
             } else if ($active_tab == 'load_map_style_options') {
-                settings_fields('rc_map_group');
+                settings_fields('rc_map_group_styles');
                 do_settings_sections('rc_map_page3');
                 submit_button('Save Settings');
 
