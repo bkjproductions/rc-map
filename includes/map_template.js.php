@@ -3,10 +3,6 @@
 // This is a JavaScript template file with placeholders for data
 
 
-
-
-
-
 var markers = {{MARKERS}};
 var myGoogleMap;
 var allMarkers = [];
@@ -83,20 +79,19 @@ showAllLegendButton.addEventListener('click',()=>{
     showAllMarkers();
 })
 
-    //jQuery('#All-link').on('click',showAllMarkers);
 
-    jQuery('#map-categories a').on('click',function() {
-        var that = jQuery(this).blur();
+jQuery('#map-categories a').on('click',function() {
+    var that = jQuery(this).blur();
 
-        if (that.hasClass('selected')) {
-            return;
-        }
+    if (that.hasClass('selected')) {
+        return;
+    }
 
-        jQuery('#map-categories a.selected').removeClass('selected');
-        that.addClass('selected');
+    jQuery('#map-categories a.selected').removeClass('selected');
+    that.addClass('selected');
 
-    });
-    function showMarkers(category) {
+});
+function showMarkers(category) {
 
         hideAllMarkers();
 
@@ -114,19 +109,17 @@ showAllLegendButton.addEventListener('click',()=>{
 
     }
 
-    function showAllMarkers() {
+function showAllMarkers() {
 
-        var bounds = new google.maps.LatLngBounds();
-        hideAllInfoWindows();
-        jQuery.each(allMarkers, function(i, marker) {
-            bounds.extend(marker.position);
-            marker.setVisible(true);
-        });
-        myGoogleMap.fitBounds(bounds);
-        return false; // stop default link behavior
-    }
-
-
+    var bounds = new google.maps.LatLngBounds();
+    hideAllInfoWindows();
+    jQuery.each(allMarkers, function(i, marker) {
+        bounds.extend(marker.position);
+        marker.setVisible(true);
+    });
+    myGoogleMap.fitBounds(bounds);
+    return false; // stop default link behavior
+}
 
 
 function createMarkers(markerData, markerIcon, markerArray,thecategory) {
@@ -221,10 +214,6 @@ function hideAllMarkers() {
         marker.setVisible(false)
     })
     hideAllInfoWindows();
-    //jQuery.each(allMarkers, function(i, marker) {
-    //    marker.setVisible(false);
-    //    marker.infowindow.close();
-    //});
 }
 
 function hideAllInfoWindows() {
@@ -244,15 +233,8 @@ function showAllMarkers() {
 
     });
     myGoogleMap.fitBounds(bounds);
-    //bkjmap_extendBounds();
+
     return false; // stop default link behavior
-}
-function bkjmap_extendBounds () {
-    var bounds = new google.maps.LatLngBounds();
-    jQuery.each(allMarkers, function(i,marker) {
-        bounds.extend(marker.position);
-    });
-    myGoogleMap.fitBounds(bounds);
 }
 
 
