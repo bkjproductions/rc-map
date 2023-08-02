@@ -242,6 +242,7 @@ if (!class_exists('RC_Map')) {
 
             settings_errors( 'rc_map_options' );
             settings_errors( 'rc_map_settings-main_options_section' );
+            settings_errors( 'rc_map_settings-google-maps_options_section' );
 
             // HTML
             require( RC_MAP_PATH . 'views/settings-page.php' );

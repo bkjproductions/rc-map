@@ -34,70 +34,20 @@ if (!class_exists('RC_Map_Settings')) {
 
             // Load each setting/option
             include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_main-options.php');
+            include_once (RC_MAP_PATH . 'includes/class.RC_DataEncryption.php');
+            include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php');
             $tabOne = new RC_MAP_SETTINGS_MAIN_OPTIONS();
+            $tabTwo = new RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS(new RC_DataEncryption());
 
         }
 
         public function adminInit(): void
         {
             // More about settings API: http://presscoders.com/wordpress-settings-api-explained/
-            register_setting('rc_map_group', 'rc_map_options', [$this, 'rcMapValidate']);
             register_setting('rc_map_group_6', 'rc_map_options_6', [$this, 'rcMapValidate_6']);
             register_setting('rc_map_group_styles', 'rc_map_group_styles_options', [$this, 'rcMapValidateStyles']);
 
 
-
-// NEEdS TO SET TO PAGE 2
-//            add_settings_field(
-//                'rc_map_style',
-//                'Map Style',
-//                array($this, 'rcMapStyleCallback'),
-//                'rc_map_page1',
-//                'rc_map_main_section',
-//                null
-//            );
-            // PAGE 2 ***************************** //
-
-            add_settings_section(
-                id: 'rc_map_second_section',
-                title: 'Google MAP Configuration',
-                callback: [$this, 'displayAllTabbedData'],
-                page: 'rc_map_page2',
-                args: null
-
-            );
-
-            add_settings_field(
-                id: 'rc_map_api_key',
-                title: 'Google Maps API Key',
-                callback: array($this, 'rcMapApiKeyCallback'),
-                page: 'rc_map_page2',
-                section: 'rc_map_second_section',
-                args: null
-            );
-
-            add_settings_field(
-                'rc_map_zoom',
-                'Map Zoom Level',
-                array($this, 'rcMapZoomCallback'),
-                'rc_map_page2',
-                'rc_map_second_section'
-            );
-
-            add_settings_field(
-                'rc_map_center_latitude',
-                'Map Center: Latitude',
-                array($this, 'rcMapCenterLatitudeCallback'),
-                'rc_map_page2',
-                'rc_map_second_section'
-            );
-            add_settings_field(
-                'rc_map_center_longitude',
-                'Map Center: Longitude',
-                array($this, 'rcMapCenterLongitudeCallback'),
-                'rc_map_page2',
-                'rc_map_second_section'
-            );
 
 
             // PAGE 3 ***************************** //
@@ -190,140 +140,7 @@ if (!class_exists('RC_Map_Settings')) {
 
         }
 
-        // PAGE 1 HTML ******************************** /
-        public function rcMapShortcodeCallback(): void
-        {
-            ?>
-            <span>Use the shortcode [rc_map] to display the slider in any page/post/widget</span>
-            <?php
-        }
 
-        public function rcMapTitleCallback(): void
-        {
-            ?>
-
-            <input
-                    type="text"
-                    name="rc_map_options[rc_map_title]"
-                    id="rc_map_title"
-                    value="<?php echo isset(self::$options['rc_map_title']) ? esc_attr(self::$options['rc_map_title']) : ''; ?>"
-            >
-            <?php
-        }
-
-        public function rcMapLatitude(): void
-        {
-            ?>
-
-            <input
-                    type="text"
-                    name="rc_map_options[rc_map_latitude]"
-                    id="rc_map_latitude"
-                    value="<?php echo isset(self::$options['rc_map_latitude']) ? esc_attr(self::$options['rc_map_latitude']) : ''; ?>"
-            >
-            <?php
-        }
-
-        public function rcMapLongitude(): void
-        {
-            ?>
-
-            <input
-                    type="text"
-                    name="rc_map_options[rc_map_longitude]"
-                    id="rc_map_longitude"
-                    value="<?php echo isset(self::$options['rc_map_latitude']) ? esc_attr(self::$options['rc_map_longitude']) : ''; ?>"
-            >
-            <?php
-        }
-
-        // PAGE 2 HTML ******************************** /
-
-        public function rcMapApiKeyCallback(): void
-        {
-
-            ?>
-            <input
-                    style="width: 30rem"
-                    type="text"
-
-                    name="rc_map_options[rc_map_api_key]"
-                    id="rc_map_api_key"
-                    value="<?php echo isset(self::$options['rc_map_api_key']) ? esc_attr(self::$options['rc_map_api_key']) : ''; ?>"
-            >
-            <?php
-        }
-
-        public function rcMapZoomCallback(): void
-        {
-            ?>
-            <input
-                    style="width: 5rem;"
-                    type="number"
-                    step="0.5"
-                    min="1"
-                    max="30"
-                    name="rc_map_options[rc_map_zoom]"
-                    id="rc_map_zoom"
-                    value="<?php echo isset(self::$options['rc_map_zoom']) ? esc_attr(self::$options['rc_map_zoom']) : ''; ?>"
-            >
-
-            <?php
-        }
-
-        public function rcMapCenterLongitudeCallback(): void
-        {
-            ?>
-            <input
-                    style="width: 30rem"
-                    type="text"
-
-                    name="rc_map_options[rc_map_center_longitude]"
-                    id="rc_map_api_key"
-                    value="<?php echo isset(self::$options['rc_map_center_longitude']) ? esc_attr(self::$options['rc_map_center_longitude']) : ''; ?>"
-            >
-            <?php
-        }
-
-        public function rcMapCenterLatitudeCallback(): void
-        {
-            ?>
-            <input
-                    style="width: 30rem"
-                    type="text"
-
-                    name="rc_map_options[rc_map_center_latitude]"
-                    id="rc_map_api_key"
-                    value="<?php echo isset(self::$options['rc_map_center_latitude']) ? esc_attr(self::$options['rc_map_center_latitude']) : ''; ?>"
-            >
-            <?php
-        }
-
-        public function rcMapStyleCallback(): void
-        {
-            $options = self::$options_styles;
-            $selected_style = self::$options['rc_map_style'];
-
-
-            ?>
-
-            <select
-                    id="rc_map_style"
-                    name="rc_map_options[rc_map_style]">
-                <?php
-
-                foreach ($options as $key => $value):
-                    if (!$key) continue;
-                    ?>
-                    <option  <?php echo ($selected_style == $key) ? 'selected'  : '' ?> value="<?php echo esc_attr($key); ?>"
-                    >
-                    <?php echo ucfirst($key)?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <div>Changing map design may require clearing cache</div>
-            <?php
-        }
 
         // PAGE 3 HTML ******************************** /
 
@@ -493,69 +310,5 @@ if (!class_exists('RC_Map_Settings')) {
             return $new_input;
         }
 
-        public function displayAllTabbedData(): void
-        {
-            // These fields need to load
-            //$map_style_json  = get_option('rc_map_load_style');
-
-            ?>
-            <div>
-                Changing map settings may require clearing cache.
-            </div>
-            <input type="hidden"
-                   id="rc_map_zoom"
-                   name="rc_map_options[rc_map_zoom]"
-                   value="<?php echo isset(self::$options['rc_map_zoom']) ? esc_attr(self::$options['rc_map_zoom']) : ''; ?>"
-            >
-            <input
-                    type="hidden"
-                    name="rc_map_options[rc_map_api_key]"
-                    id="rc_map_api_key"
-                    value="<?php echo isset(self::$options['rc_map_api_key']) ? esc_attr(self::$options['rc_map_api_key']) : ''; ?>"
-            >
-            <input
-                    type="hidden"
-                    name="rc_map_options[rc_map_title]"
-                    id="rc_map_title"
-                    value="<?php echo isset(self::$options['rc_map_title']) ? esc_attr(self::$options['rc_map_title']) : ''; ?>"
-            >
-            <input
-                    type="hidden"
-                    name="rc_map_options[rc_map_style]"
-                    id="rc_map_style"
-                    value="<?php echo isset(self::$options['rc_map_style']) ? esc_attr(self::$options['rc_map_style']) : ''; ?>"
-            >
-            <input
-                    type="hidden"
-                    name="rc_map_options[rc_map_longitude]"
-                    id="rc_map_longitude"
-                    value="<?php echo isset(self::$options['rc_map_longitude']) ? esc_attr(self::$options['rc_map_longitude']) : ''; ?>"
-            >
-            <input
-                    type="hidden"
-                    name="rc_map_options[rc_map_latitude]"
-                    id="rc_map_latitude"
-                    value="<?php echo isset(self::$options['rc_map_latitude']) ? esc_attr(self::$options['rc_map_latitude']) : ''; ?>"
-            >
-            <input
-                    type="hidden"
-                    name="rc_map_options[rc_map_center_longitude]"
-                    id="rc_map_latitude"
-                    value="<?php echo isset(self::$options['rc_map_center_longitude']) ? esc_attr(self::$options['rc_map_center_longitude']) : ''; ?>"
-            >
-            <input
-                    type="hidden"
-                    name="rc_map_options[rc_map_center_latitude]"
-                    id="rc_map_latitude"
-                    value="<?php echo isset(self::$options['rc_map_center_latitude']) ? esc_attr(self::$options['rc_map_center_latitude']) : ''; ?>"
-            >
-            <!--            <input type="hidden"-->
-            <!--                   id="rc_map_load_style"-->
-            <!--                   name="rc_map_load_style"-->
-            <!--                   value="--><?php //echo esc_attr($map_style_json) ?? ''; ?><!--"-->
-            <!--            >-->
-
-            <?php
-        }
     }
 }

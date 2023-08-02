@@ -5,6 +5,7 @@
   */
 
 if (!class_exists('RC_MAP_SETTINGS_MAIN_OPTIONS')){
+
     class RC_MAP_SETTINGS_MAIN_OPTIONS {
         public static mixed $options;
 
@@ -211,7 +212,7 @@ if (!class_exists('RC_MAP_SETTINGS_MAIN_OPTIONS')){
                 value="<?php echo isset(self::$options[$args['option_name']]) ? esc_attr(self::$options[$args['option_name']]) : ''; ?>"
         >
         <?php
-    }
+        }
 
 
     }

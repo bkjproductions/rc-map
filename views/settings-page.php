@@ -76,18 +76,14 @@
         <form action="options.php" method="post">
             <?php
             if ($active_tab == 'main_options') {
-//                settings_fields('rc_map_group');
-//                do_settings_sections('rc_map_page1');
                 settings_fields('rc_map_settings-main_options_group');
                 do_settings_sections('rc_map_settings-main_options_page');
-
-
                 submit_button('Save Settings');
 
 
             } else if ($active_tab == 'google_api_options') {
-                settings_fields('rc_map_group');
-                do_settings_sections('rc_map_page2');
+                settings_fields('rc_map_settings-google-map_options_group');
+                do_settings_sections('rc_map_settings-google-maps_options_page');
                 submit_button('Save Settings');
 
 
