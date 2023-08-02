@@ -76,8 +76,12 @@
         <form action="options.php" method="post">
             <?php
             if ($active_tab == 'main_options') {
-                settings_fields('rc_map_group');
-                do_settings_sections('rc_map_page1');
+//                settings_fields('rc_map_group');
+//                do_settings_sections('rc_map_page1');
+                settings_fields('rc_map_settings-main_options_group');
+                do_settings_sections('rc_map_settings-main_options_page');
+
+
                 submit_button('Save Settings');
 
 

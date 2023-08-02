@@ -3,6 +3,8 @@
 use JetBrains\PhpStorm\NoReturn;
 
 if (!class_exists('RC_Map_Settings')) {
+
+
     class RC_Map_Settings
     {
 
@@ -29,6 +31,11 @@ if (!class_exists('RC_Map_Settings')) {
             add_action('updated_post_meta', [$this, 'handleAfterUpdatePostMeta'], 10, 4);
             add_action('updated_option', [$this, 'handleAfterUpdateOption'], 10, 4);
 
+
+            // Load each setting/option
+            include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_main-options.php');
+            $tabOne = new RC_MAP_SETTINGS_MAIN_OPTIONS();
+
         }
 
         public function adminInit(): void
@@ -39,58 +46,16 @@ if (!class_exists('RC_Map_Settings')) {
             register_setting('rc_map_group_styles', 'rc_map_group_styles_options', [$this, 'rcMapValidateStyles']);
 
 
-            // PAGE 1 ***************************** //
 
-            add_settings_section(
-                id: 'rc_map_main_section',
-                title: 'Main POI Details?',
-                callback: [$this, 'displayAllTabbedData'],
-                page: 'rc_map_page1'
-            );
-
-
-            add_settings_field(
-                'rc_map_shortcode',
-                'Shortcode',
-                array($this, 'rcMapShortcodeCallback'),
-                'rc_map_page1',
-                'rc_map_main_section'
-            );
-
-            add_settings_field(
-                id: 'rc_map_title',
-                title: 'Map Title',
-                callback: array($this, 'rcMapTitleCallback'),
-                page: 'rc_map_page1',
-                section: 'rc_map_main_section',
-                args: null
-            );
-
-            add_settings_field(
-                id: 'rc_map_latitude',
-                title: 'Main POI Latitude',
-                callback: array($this, 'rcMapLatitude'),
-                page: 'rc_map_page1',
-                section: 'rc_map_main_section',
-                args: null
-            );
-            add_settings_field(
-                id: 'rc_map_longitude',
-                title: 'Main POI Longitude',
-                callback: array($this, 'rcMapLongitude'),
-                page: 'rc_map_page1',
-                section: 'rc_map_main_section',
-                args: null
-            );
-
-            add_settings_field(
-                'rc_map_style',
-                'Map Style',
-                array($this, 'rcMapStyleCallback'),
-                'rc_map_page1',
-                'rc_map_main_section',
-                null
-            );
+// NEEdS TO SET TO PAGE 2
+//            add_settings_field(
+//                'rc_map_style',
+//                'Map Style',
+//                array($this, 'rcMapStyleCallback'),
+//                'rc_map_page1',
+//                'rc_map_main_section',
+//                null
+//            );
             // PAGE 2 ***************************** //
 
             add_settings_section(
@@ -302,6 +267,7 @@ if (!class_exists('RC_Map_Settings')) {
                     id="rc_map_zoom"
                     value="<?php echo isset(self::$options['rc_map_zoom']) ? esc_attr(self::$options['rc_map_zoom']) : ''; ?>"
             >
+
             <?php
         }
 
@@ -533,6 +499,9 @@ if (!class_exists('RC_Map_Settings')) {
             //$map_style_json  = get_option('rc_map_load_style');
 
             ?>
+            <div>
+                Changing map settings may require clearing cache.
+            </div>
             <input type="hidden"
                    id="rc_map_zoom"
                    name="rc_map_options[rc_map_zoom]"

@@ -210,9 +210,6 @@ if (!class_exists('RC_Map')) {
                 );
             }
 
-
-
-
             add_submenu_page(
                 parent_slug: 'rc_map_admin',
                 page_title: 'Add New POI',
@@ -239,10 +236,12 @@ if (!class_exists('RC_Map')) {
             if (!current_user_can('manage_options')) { return;}
 
             if( isset( $_GET['settings-updated'] ) ){
+
                 add_settings_error( 'rc_map_options', 'rc_map_message', 'Settings Saved', 'success' );
             }
 
             settings_errors( 'rc_map_options' );
+            settings_errors( 'rc_map_settings-main_options_section' );
 
             // HTML
             require( RC_MAP_PATH . 'views/settings-page.php' );

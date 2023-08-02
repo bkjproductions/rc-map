@@ -71,19 +71,25 @@ function initMap() {
    jQuery('body').addClass('map-loaded');
 }
 
-jQuery(document).ready(function($) {
-    setTimeout(initMap,1000);
-//jQuery( function($) {
-    // Need to set up clicks for each Category button
-    jQuery('#map-categories a').on('click', function() {
-        var myid = $(this).attr('id');
-        myid = myid.split('-')[0];
 
-        showMarkers(myid);
-        return false;
-    });
 
-    jQuery('#All-link').on('click',showAllMarkers);
+// Need to set up clicks for each Category button
+const legendItems = document.querySelectorAll('#map-categories a');
+legendItems.forEach(item=>{
+    item.addEventListener('click',(evt)=>{
+        evt.preventDefault();
+        let id = item.getAttribute('id');
+        id = id.split('-')[0];
+        showMarkers(id)
+    })
+})
+
+const showAllLegendButton = document.getElementById('All-link');
+showAllLegendButton.addEventListener('click',()=>{
+    showAllMarkers();
+})
+
+    //jQuery('#All-link').on('click',showAllMarkers);
 
     jQuery('#map-categories a').on('click',function() {
         var that = jQuery(this).blur();
@@ -126,7 +132,7 @@ jQuery(document).ready(function($) {
         return false; // stop default link behavior
     }
 
-});
+
 
 
 function createMarkers(markerData, markerIcon, markerArray,thecategory) {
@@ -258,11 +264,12 @@ function hideAllInfoWindows() {
 }
 function showAllMarkers() {
     //alert("showAllMarkers()");
+    hideAllInfoWindows();
     var bounds = new google.maps.LatLngBounds();
     jQuery.each(allMarkers, function(i, marker) {
         bounds.extend(marker.position);
         marker.setVisible(true);
-        marker.infowindow.close();
+
     });
     myGoogleMap.fitBounds(bounds);
     //bkjmap_extendBounds();
