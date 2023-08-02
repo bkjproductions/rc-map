@@ -93,6 +93,15 @@ if (!class_exists('RC_MAP_SETTINGS_MAIN_OPTIONS')){
                 section: 'rc_map_settings-main_options_section',
                 args: ['option_name' => 'rc_map_zip-code']
             );
+            // Part of settings API - Add a field for the principal phone
+            add_settings_field(
+                id:'rc_map_phone',
+                title: 'Phone:',
+                callback: [$this, 'rcMapTextInputCallback'],
+                page: 'rc_map_settings-main_options_page',
+                section: 'rc_map_settings-main_options_section',
+                args: ['option_name' => 'rc_map_phone']
+            );
             // Part of settings API - Add a field for the principal icon url
             add_settings_field(
                 id:'rc_map_principal-icon-url',

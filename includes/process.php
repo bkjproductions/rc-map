@@ -33,9 +33,7 @@ class ProcessMap
         $this->snazzy_style = $this->getSnazzyStyle();
         $this->categories = $this->getCategories();
         $this->markers = $this->getAllPoints();
-
-
-        $this->mapData = [];
+		$this->mapData = [];
         // Process template file
 
 
@@ -55,6 +53,7 @@ class ProcessMap
         }
 
     }
+
     public function getCategories():array|object|null {
         global $wpdb;
 
@@ -170,15 +169,42 @@ class ProcessMap
     }
     private function getSnazzyStyle():string{
         $default_style = get_option('rc_map_load_style');
-        $selected_style = RC_Map_Settings::$options['rc_map_style'];
+        $selected_style = RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_style'];
+
+
         $map_styles = RC_Map_Settings::$options_styles;
+
         if (!$map_styles){
             return $default_style;
         }
+	   error_log(print_r($map_styles[$selected_style],true));
         return $map_styles[$selected_style];
 
     }
+    private function getPrincipalInfo() :array {
+        return [
+            'name' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_principal-name'],
+            'address' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_address'],
+            'city' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_city'],
+            'state' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_state'],
+            'zip_code' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_zip-code'],
+            'phone' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_phone'],
+            'icon_url' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_principal-icon-url'],
+            'latitude' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_principal-latitude'],
+            'longitude' => RC_MAP_SETTINGS_MAIN_OPTIONS::$options['rc_map_principal-longitude']
+        ];
+    }
+	private function getMapSettings():array{
+		$settings =  [
+			'zoom' => RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_zoom'],
+			'scale' => RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_marker-scale'],
+			'center_latitude' => RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_center_latitude'],
+			'center_longitude' => RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_center_longitude']
+		];
 
+		error_log(print_r($settings,true));
+		return $settings;
+	}
     /**
      *
      * @param $point a point of interest.
@@ -287,6 +313,9 @@ class ProcessMap
 
         $serializedMapData = json_encode($this->mapData);
         $serializedMarkers = json_encode($this->markers);
+        $serializedPrincipalInfo = json_encode($this->getPrincipalInfo());
+		$serializedMapSettings = json_encode($this->getMapSettings());
+
         // Load the JavaScript template file
         ob_start();
         include('map_template.js.php');
@@ -294,10 +323,10 @@ class ProcessMap
 
         // Replace the placeholders with serialized data in the JavaScript template
         $javascriptContent = str_replace(
-            array('{{MAP_DATA}}', '{{GOOGLE_MAPS_API_KEY}}', '{{MAP_STYLE}}', '{{BASE_URL}}',
+            array('{{MAP_SETTINGS}}','{{PRINCIPAL_INFO}}','{{MAP_DATA}}', '{{GOOGLE_MAPS_API_KEY}}', '{{MAP_STYLE}}', '{{BASE_URL}}',
                 '{{CENTER_LAT}}', '{{CENTER_LON}}',
                 '{{DEFAULT_LATITUDE}}', '{{DEFAULT_LONGITUDE}}', '{{DEFAULT_ZOOM}}', '{{MARKERS}}'),
-            array($serializedMapData, $this->google_api_key, $this->snazzy_style, get_site_url(),
+            array($serializedMapSettings, $serializedPrincipalInfo, $serializedMapData, $this->google_api_key, $this->snazzy_style, get_site_url(),
                 $this->map_center_lat, $this->map_center_lon,
                 $this->default_latitude, $this->default_longitude, $this->default_zoom, $this->markers),
             $javascriptContent

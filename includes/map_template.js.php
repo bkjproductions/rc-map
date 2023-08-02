@@ -1,63 +1,57 @@
 // map_template.js.php
 
 // This is a JavaScript template file with placeholders for data
-// Placeholders: {{MAP_DATA}}, {{GOOGLE_MAPS_API_KEY}}, {{OTHER_SETTINGS}}
-//  {{DEFAULT_LATITUDE}}', '{{DEFAULT_LONGITUDE}}', '{{DEFAULT_ZOOM}}', '{{MARKERS}}',
-var markers = {{MARKERS}}
+
+
+
+
+
+
+var markers = {{MARKERS}};
 var myGoogleMap;
 var allMarkers = [];
 var allInfoWindows = [];
+var principalInfo = {{PRINCIPAL_INFO}};
+var snazzyStyle = {{MAP_STYLE}};
+var mapSettings = {{MAP_SETTINGS}};
 
 function initMap() {
     // Initialize Google Maps
 
-    var myLatLng = {lat: {{DEFAULT_LATITUDE}}, lng: {{DEFAULT_LONGITUDE}} };
-    var mapCenter = {lat: {{CENTER_LAT}}, lng: {{CENTER_LON}} };
+    var myLatLng = {lat: parseFloat(principalInfo.latitude), lng: parseFloat(principalInfo.longitude) };
+    var mapCenter = {lat: parseFloat(mapSettings.center_latitude), lng: parseFloat(mapSettings.center_longitude) };
     var mapOptions = {
         center: mapCenter,
-        zoom: {{DEFAULT_ZOOM}},
+        zoom: parseFloat(mapSettings.zoom),
         scrollwheel: false,
-        styles:{{MAP_STYLE}}
+        styles:snazzyStyle
         // Other map options here
         //mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
     myGoogleMap = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-    // Add markers for points of interest
-    //{{MARKERS}}
 
-    //var myIcon = "{{BASE_URL}}/images/markers/marker_primary.png";
-    var myIcon = '{{BASE_URL}}/wp-content/uploads/2022/08/NG-011.png';
     // PRIMARY marker: TODO: Change URL when time comes
     var contentString = '<div id="content">'+
         '<div id="bodyContent">'+
         //'<p><img src="' + base_url + '/images/logo.png" width="200"></p>' +
-        '<h2>Stratus Residences</h2>'+
-        '<p><a href="tel:877.328.3312">877.328.3312</a></p>'+
-        '<p> 191 Washington Street<br>Brighton, MA 02135 </p>' +
-        '</div>'+
+       '<h2>'+ principalInfo.name +'</h2>'+
+        '<p><a href="tel:' + principalInfo.phone + '">'+ principalInfo.phone +'</a></p>'+
+        '<p>' + principalInfo.address +'<br>' + principalInfo.city + ', ' + principalInfo.state + ' ' + principalInfo.zip_code + '</p>' +
+        '</div> '+
         '</div>';
 
     var infowindow = new google.maps.InfoWindow({
         content: contentString
     });
 
-    const svgMarker = {
-        path: "M12 0C7 0 3 4 3 9c0 6 9 15 9 15s9-9 9-15c0-5-4-9-9-9zm0 13c-2 0-4-2-4-4s2-4 4-4 4 2 4 4-2 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z",
-        fillColor: "yellow",
-        fillOpacity: 1,
-        strokeWeight: 0,
-        rotation: 0,
-        scale: 2,
-        anchor: new google.maps.Point(0, 20),
-    };
 
     var marker = new google.maps.Marker({
         position: myLatLng,
         map: myGoogleMap,
-        title: 'Stratus Residences',
-        icon: svgMarker
+        title: principalInfo.name,
+        icon: principalInfo.icon_url
     });
     marker.addListener("click", ({domEvent, latLng}) => {
         const {target} = domEvent;
@@ -161,29 +155,7 @@ function hideAllInfoWindows() {
     });
 }
 
-function bkjmap_extendBounds () {
-    var bounds = new google.maps.LatLngBounds();
-    jQuery.each(allMarkers, function(i,marker) {
-        bounds.extend(marker.position);
-    });
-    myGoogleMap.fitBounds(bounds);
-}
 
-
-/***************************************
- *
- * Add functionality for hide/show links.
- *
- ***************************************/
-
-
-function bkjmap_extendBounds () {
-    var bounds = new google.maps.LatLngBounds();
-    jQuery.each(allMarkers, function(i,marker) {
-        bounds.extend(marker.position);
-    });
-    myGoogleMap.fitBounds(bounds);
-}
 
 function initCategories(){
 
@@ -195,7 +167,7 @@ function initCategories(){
             fillOpacity: 1,
             strokeWeight: 0,
             rotation: 0,
-            scale: 1,
+            scale: parseFloat(mapSettings.scale),
             anchor: new google.maps.Point(0, 20),
         };
         const coords = marker.geo_code.split(', ');

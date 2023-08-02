@@ -49,7 +49,6 @@ if (!class_exists('RC_Map_Settings')) {
 
 
 
-
             // PAGE 3 ***************************** //
             add_settings_section(
                 id: 'rc_map_third_section',

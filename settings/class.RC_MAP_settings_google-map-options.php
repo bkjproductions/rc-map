@@ -61,6 +61,14 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
                 'rc_map_settings-google-maps_options_page',
                 'rc_map_settings-google-maps_options_section'
             );
+            // Part of settings API - Add a field for Google marker scale
+            add_settings_field(
+                'rc_map_marker-scale',
+                'Map Marker Scale',
+                array($this, 'rcMapMarkerScaleCallback'),
+                'rc_map_settings-google-maps_options_page',
+                'rc_map_settings-google-maps_options_section'
+            );
             // Part of settings API - Add a field for Google center - latitude
             add_settings_field(
                 id:'rc_map_center_latitude',
@@ -152,6 +160,27 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
 
             <?php
         }
+        /**
+         * @return void
+         * purpose: sets number field for zoom level
+         */
+        public function rcMapMarkerScaleCallback(): void
+        {
+            ?>
+            <input
+                style="width: 5rem;"
+                type="number"
+                step="0.1"
+                min="0.2"
+                max="2"
+                name="rc_map_settings-google-map_options[rc_map_marker-scale]"
+                id="rc_map_marker-scale"
+                value="<?php echo isset(self::$options['rc_map_marker-scale']) ? esc_attr(self::$options['rc_map_marker-scale']) : ''; ?>"
+            >
+
+            <?php
+        }
+
 
         /**
          * @return void
