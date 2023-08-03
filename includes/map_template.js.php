@@ -4,6 +4,8 @@
 
 
 var markers = {{MARKERS}};
+var terms = {{TERMS}};
+console.log(terms);
 var myGoogleMap;
 var allMarkers = [];
 var allInfoWindows = [];
@@ -27,21 +29,17 @@ function initMap() {
 
     myGoogleMap = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-
-    // PRIMARY marker: TODO: Change URL when time comes
     var contentString = '<div id="content">'+
         '<div id="bodyContent">'+
-        //'<p><img src="' + base_url + '/images/logo.png" width="200"></p>' +
-       '<h2>'+ principalInfo.name +'</h2>'+
+        '<h2>'+ principalInfo.name +'</h2>'+
         '<p><a href="tel:' + principalInfo.phone + '">'+ principalInfo.phone +'</a></p>'+
-        '<p>' + principalInfo.address +'<br>' + principalInfo.city + ', ' + principalInfo.state + ' ' + principalInfo.zip_code + '</p>' +
+        '<p>' + principalInfo.address + '<br>' + principalInfo.city + ', ' + principalInfo.state + ' ' + principalInfo.zip_code + '</p>' +
         '</div> '+
         '</div>';
 
     var infowindow = new google.maps.InfoWindow({
         content: contentString
     });
-
 
     var marker = new google.maps.Marker({
         position: myLatLng,
@@ -50,7 +48,7 @@ function initMap() {
         icon: principalInfo.icon_url
     });
     marker.addListener("click", ({domEvent, latLng}) => {
-        const {target} = domEvent;
+
         infowindow.open({
             anchor: marker,
             myGoogleMap,
@@ -152,55 +150,81 @@ function hideAllInfoWindows() {
 
 function initCategories(){
 
+
     markers.forEach(marker => {
 
-        const svgMarker = {
-            path: "M12 0C7 0 3 4 3 9c0 6 9 15 9 15s9-9 9-15c0-5-4-9-9-9zm0 13c-2 0-4-2-4-4s2-4 4-4 4 2 4 4-2 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z",
-            fillColor: marker.color,
-            fillOpacity: 1,
-            strokeWeight: 0,
-            rotation: 0,
-            scale: parseFloat(mapSettings.scale),
-            anchor: new google.maps.Point(0, 20),
-        };
-        const coords = marker.geo_code.split(', ');
-        const latLon =  { lat: parseFloat(coords[0]), lng: parseFloat(coords[1]) };
 
-        const newMarker = new google.maps.Marker({
-            category: marker.category,
-            position: latLon,
-            map: myGoogleMap,
-            title: marker.post_title,
-            icon: svgMarker
-        });
+        //const categories = marker.terms.split(","); // Split the terms into an array
+        const categories = marker.terms.split(",").map((category) => category.trim().toLowerCase()); // Split, trim whitespace, and convert to lowercase
 
-        let contentString = '<div id="content">' +
-            '<div id="bodyContent">' +
-            '<h2>' + marker.post_title + '</h2>' +
-            '<p>' + marker.address +'<br>' +
-            '<br>' + marker.city + ', ' +  marker.state + ' ' + marker.zip_code +
-            '<br>' + marker.phone +'<p>' +
-            '</div></div>';
+        categories.forEach((category) => {
+            console.log("category: ", category)
+            // Find the corresponding term object based on the slug (category)
+            const term = terms.find((term) => term.slug === category);
 
-        if (marker.url > 'https://'){
+            if (term) {
 
-            contentString += `<p><a href="${marker.url}" target="_blank">Visit website</a></p>`
-        }
 
-        const infoWindow = new google.maps.InfoWindow({
-            content: contentString,
-            ariaLabel: "Uluru",
+                const svgMarker = {
+                    path: "M12 0C7 0 3 4 3 9c0 6 9 15 9 15s9-9 9-15c0-5-4-9-9-9zm0 13c-2 0-4-2-4-4s2-4 4-4 4 2 4 4-2 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z",
+                    fillColor: term.color,
+                    fillOpacity: 1,
+                    strokeWeight: 0,
+                    rotation: 0,
+                    scale: parseFloat(mapSettings.scale),
+                    anchor: new google.maps.Point(0, 20),
+                };
+                const coords = marker.geo_code.split(', ');
+                const latLon = {lat: parseFloat(coords[0]), lng: parseFloat(coords[1])};
+
+                const newMarker = new google.maps.Marker({
+                    category: category.trim().toLowerCase(),
+                    position: latLon,
+                    map: myGoogleMap,
+                    title: marker.post_title,
+                    icon: svgMarker
+                });
+
+
+                const poi = {
+                    name: marker.post_title,
+                    address: (marker.address) ? marker.address : '',
+                    city: (marker.city) ? marker.city : '',
+                    state: (marker.state) ? marker.state : '',
+                    zip: (marker.zip_code) ? marker.zip_code : '',
+                    phone: (marker.phone) ? marker.phone : '',
+
+                }
+
+                let contentString = '<div id="content">' +
+                    '<div id="bodyContent">' +
+                    '<h2>' + poi.name + '</h2>' +
+                    '<p>' + poi.address + '<br>' +
+                    '<br>' + poi.city + ', ' + poi.state + ' ' + poi.zip +
+                    '<br>' + poi.phone + '<p>' +
+                    '</div></div>';
+
+                if (marker.url > 'https://') {
+
+                    contentString += `<p><a href="${marker.url}" target="_blank">Visit website</a></p>`
+                }
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: contentString,
+                    ariaLabel: "Uluru",
+                })
+                newMarker.addListener("click", () => {
+                    console.log(marker);
+                    hideAllInfoWindows();
+                    infoWindow.open({
+                        myGoogleMap,
+                        anchor: newMarker,
+                    });
+                });
+                allInfoWindows.push(infoWindow)
+                allMarkers.push(newMarker);
+            }
         })
-        newMarker.addListener("click", () => {
-
-            hideAllInfoWindows();
-            infoWindow.open({
-                myGoogleMap,
-                anchor: newMarker,
-            });
-        });
-        allInfoWindows.push(infoWindow)
-        allMarkers.push(newMarker);
     })
 
 }

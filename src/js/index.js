@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', ()=>{
 
     let deleteButtons = document.querySelectorAll('.rc-map-delete');
+    let editButtons = document.querySelectorAll('.rc-map-edit');
+
 
     let bulkActionSelect = document.getElementById('bulk-action-selector-top');
     let applyButton = document.getElementById('doaction');

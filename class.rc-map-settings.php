@@ -27,16 +27,17 @@ if (!class_exists('RC_Map_Settings')) {
             add_action('admin_post_generate_code', [$this, 'handle_map_process_script'], 10);
             add_action('admin_post_get_geo_cords', [$this, 'handle_map_get_geo_cords'], 10);
 
-            // HANDLE UPDATED POST_META
+            // HANDLE UPDATED POST_META AND OPTION
             add_action('updated_post_meta', [$this, 'handleAfterUpdatePostMeta'], 10, 4);
             add_action('updated_option', [$this, 'handleAfterUpdateOption'], 10, 4);
 
-
-            // Load each setting/option
+            // Load Tab One in settings page.
             include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_main-options.php');
+            $tabOne = new RC_MAP_SETTINGS_MAIN_OPTIONS();
+
+            // Load Tab Two in settings page.
             include_once (RC_MAP_PATH . 'includes/class.RC_DataEncryption.php');
             include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php');
-            $tabOne = new RC_MAP_SETTINGS_MAIN_OPTIONS();
             $tabTwo = new RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS(new RC_DataEncryption());
 
         }
@@ -54,10 +55,8 @@ if (!class_exists('RC_Map_Settings')) {
                 id: 'rc_map_third_section',
                 title: 'Load Map Styles',
                 callback: null,
-                //callback: [$this, 'displayAllTabbedData'],
                 page: 'rc_map_page3',
                 args: null
-
             );
 
             add_settings_field(
@@ -97,7 +96,6 @@ if (!class_exists('RC_Map_Settings')) {
                 callback: null,
                 page: 'rc_map_page5',
                 args: null
-
             );
 
             // PAGE 6 ***************************** //
@@ -127,18 +125,20 @@ if (!class_exists('RC_Map_Settings')) {
         // UPDATED POST META ALL PAGES
         public function handleAfterUpdatePostMeta(): void
         {
+
             include_once(RC_MAP_PATH . 'includes/process.php');
+	        wp_cache_flush();
 
         }
 
         // UPDATED OPTION ALL PAGES
         public function handleAfterUpdateOption(): void
         {
-            include_once(RC_MAP_PATH . 'includes/process.php');
 
+            include_once(RC_MAP_PATH . 'includes/process.php');
+	        wp_cache_flush();
 
         }
-
 
 
         // PAGE 3 HTML ******************************** /
@@ -194,7 +194,6 @@ if (!class_exists('RC_Map_Settings')) {
         public function rcCheckBoxCallback($args): void
         {
             $option_name = "rc_map_options_6[" . $args['theName'] . ']';
-//            $option_name = "rc_map_options[rc_map_use_data_tables_js]";
 
             $checked = isset(self::$options_6[$args['theName']]) ? '1' : '0';
 
@@ -219,8 +218,17 @@ if (!class_exists('RC_Map_Settings')) {
 
             // Redirect back to the admin page after processing
             //wp_safe_redirect( admin_url( 'admin.php?page=rc_map_admin&tab=load_map_data_options' ) );
-            wp_safe_redirect(admin_url('edit.php?post_type=rc-poi'));
-            exit;
+	        // Get the current page's path from REQUEST_URI
+	        $current_page_path = $_SERVER['REQUEST_URI'];
+
+	        // Generate the URL for the current page in the WordPress admin area
+	        $admin_current_page_url = admin_url($current_page_path);
+
+	        // Redirect the user to the generated URL
+	        wp_safe_redirect($admin_current_page_url);
+	        exit(); // It's important to use exit() after the redirect to ensure the script execution stops.
+
+
         }
 
 // Callback function to handle the custom script for processing data
@@ -288,26 +296,6 @@ if (!class_exists('RC_Map_Settings')) {
             return $new_input;
         }
 
-        public function rcMapValidate($input): array
-        {
-            // Use switch for different types of fields: text|url|number
-            $new_input = array();
-
-            foreach ($input as $key => $value) {
-                switch ($key) {
-                    case 'rc_map_title':
-                        if (empty($value)) {
-                            $value = 'Please enter a value.';
-                        }
-                        $new_input[$key] = sanitize_text_field($value);
-                        break;
-                    default:
-                        $new_input[$key] = sanitize_text_field($value);
-                        break;
-                }
-            }
-            return $new_input;
-        }
 
     }
 }

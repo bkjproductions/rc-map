@@ -133,10 +133,10 @@ if (!class_exists('RC_List_Table')) {
                 return ;
             }
             $actions = [];
-            $actions['edit'] = '<a>'.__( 'Edit', RC_TEXT_DOMAIN) .' </a>';
+//            $actions['edit'] = '<a clas="rc-map-edit">'.__( 'Edit', RC_TEXT_DOMAIN) .' </a>';
             $actions['delete'] = '<a class="rc-map-delete">'.__( 'Delete', RC_TEXT_DOMAIN) .' </a>';
-            $actions['quick-edit'] = '<a>'.__( 'Quick Edit', RC_TEXT_DOMAIN) .' </a>';
-            $actions['view'] = '<a>'.__( 'View', RC_TEXT_DOMAIN) .' </a>';
+//            $actions['quick-edit'] = '<a>'.__( 'Quick Edit', RC_TEXT_DOMAIN) .' </a>';
+//            $actions['view'] = '<a>'.__( 'View', RC_TEXT_DOMAIN) .' </a>';
 
             return $this->row_actions($actions);
         }

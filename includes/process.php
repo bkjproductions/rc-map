@@ -32,6 +32,7 @@ class ProcessMap
     {
         error_log("Updating map data...!");
         $result = $this->getAllPoints();
+		error_log(print_r($this->markers,true));
 
         if (!$result) {
             error_log("Something went wrong!");
@@ -70,8 +71,8 @@ class ProcessMap
         // Get all posts of the 'rc-poi' post type along with their meta data and term meta data and id
         $query = "
           SELECT p.ID, p.post_title, p.post_content, p.post_status,
-                    CASE WHEN pm.meta_key = 'rc_poi_location_address' THEN pm.meta_value END AS address,
-                    CASE WHEN pm.meta_key = 'rc_poi_location_url' THEN pm.meta_value END AS url,
+                    MAX(CASE WHEN pm.meta_key = 'rc_poi_location_address' THEN pm.meta_value END) AS address,
+                    MAX(CASE WHEN pm.meta_key = 'rc_poi_location_url' THEN pm.meta_value END) AS url,
                     MAX(CASE WHEN pm.meta_key = 'rc_poi_location_geo_code' THEN pm.meta_value END) AS geo_code,
                     MAX(CASE WHEN pm.meta_key = 'rc_poi_location_city' THEN pm.meta_value END) AS city,
                     MAX(CASE WHEN pm.meta_key = 'rc_poi_location_state' THEN pm.meta_value END) AS state,
@@ -143,7 +144,7 @@ class ProcessMap
         if (!$map_styles){
             return $default_style;
         }
-	   error_log(print_r($map_styles[$selected_style],true));
+	   //error_log(print_r($map_styles[$selected_style],true));
         return $map_styles[$selected_style];
 
     }
@@ -168,7 +169,7 @@ class ProcessMap
 			'center_longitude' => RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_center_longitude']
 		];
 
-		error_log(print_r($settings,true));
+		//error_log(print_r($settings,true));
 		return $settings;
 	}
     /**
@@ -219,7 +220,6 @@ class ProcessMap
         $htmlAddress = $this->htmlAddress($point);
 
         $output = [];
-        //error_log(print_r($coordinates,true));
         $output['positionLat'] = $coordinates[0];
         $output['positionLong'] = $coordinates[1];
         $output['name'] = trim($point->post_title);
@@ -233,7 +233,7 @@ class ProcessMap
             }
             $output['html'] .= '<p><a href="' . $point->url . '" target="_blank">Visit website</a></p>';
         }
-
+		error_log(print_r($point->terms,true));
         if (!isset($this->finished_data[$point->terms])) {
             $this->finished_data[$point->terms] = array();
         }
@@ -280,6 +280,7 @@ class ProcessMap
         $serializedMarkers = json_encode($this->markers);
         $serializedPrincipalInfo = json_encode($this->getPrincipalInfo());
 		$serializedMapSettings = json_encode($this->getMapSettings());
+		$serializedCategories = json_encode($this->getCategories());
 
         // Load the JavaScript template file
         ob_start();
@@ -288,8 +289,8 @@ class ProcessMap
 
         // Replace the placeholders with serialized data in the JavaScript template
         $javascriptContent = str_replace(
-            array('{{MAP_SETTINGS}}','{{PRINCIPAL_INFO}}', '{{GOOGLE_MAPS_API_KEY}}', '{{MAP_STYLE}}', '{{BASE_URL}}', '{{MARKERS}}'),
-            array($serializedMapSettings, $serializedPrincipalInfo, $this->google_api_key, $this->snazzy_style, get_site_url(), $this->markers),
+            array('{{MAP_SETTINGS}}','{{TERMS}}','{{PRINCIPAL_INFO}}', '{{GOOGLE_MAPS_API_KEY}}', '{{MAP_STYLE}}', '{{BASE_URL}}', '{{MARKERS}}'),
+            array($serializedMapSettings,$serializedCategories, $serializedPrincipalInfo, $this->google_api_key, $this->snazzy_style, get_site_url(), $this->markers),
             $javascriptContent
         );
 

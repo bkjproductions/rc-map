@@ -31,7 +31,7 @@
             ?>
 
             <input type="hidden" name="action" value="get_geo_cords">
-            <div>After importing data, use this to retrieve missing any geo coordinates from Google API. This will save the coordinates for each point of interest in the database.</div>
+            <div>After importing data, use this to retrieve missing any geo coordinates from Google API. <br> This will save the coordinates for each point of interest in the database.</div>
             <button type="submit" class="button button-primary"><?php esc_html_e( 'Get Geo Coordinates', 'rc-map' ); ?></button>
 
         </form>
