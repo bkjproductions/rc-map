@@ -41,6 +41,8 @@ if (!class_exists('RC_Map')) {
     class RC_Map{
 
         private RC_Map_Settings $rc_map_settings;
+		private RC_MAP_setting_google_map_options $rc_map_setting_google_map_options;
+		private RC_DataEncryption $data_encryption;
 
         public function __construct()
         {
@@ -60,6 +62,7 @@ if (!class_exists('RC_Map')) {
             add_action('admin_menu', array($this, 'addMenu'));
 
             // SETTINGS PAGE + STATIC METHOD options
+	        require_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php');
             require_once(RC_MAP_PATH . 'class.rc-map-settings.php');
             $this->rc_map_settings = new RC_Map_Settings();
 
@@ -67,8 +70,11 @@ if (!class_exists('RC_Map')) {
             require_once(RC_MAP_PATH . 'shortcodes/class.rc-map-shortcode.php');
             $rc_poi_shortcode = new RC_Map_Shortcode();
 
+			// TO DECRYPT OPTIONS
+	        include_once(RC_MAP_PATH . 'includes/class.RC_DataEncryption.php');
+			$this->data_encryption = new RC_DataEncryption();
 
-            // ENQUEUE ADMIN SCRIPTS
+	        // ENQUEUE ADMIN SCRIPTS
             add_action('admin_enqueue_scripts',[$this, 'enqueueDatatables'],1);
             add_action('admin_enqueue_scripts',[$this, 'enqueueScriptsAndStyles'],2);
 
@@ -98,15 +104,11 @@ if (!class_exists('RC_Map')) {
 
         }
         function enqueueFrontendScripts():void {
-            // Some cache busting:
-
-
-
             // Load Google Map file
 
             wp_enqueue_script('rc-google-map-js', RC_MAP_URL . 'src/js/initMap.js', [], '1-' . time(), true);
             // Enqueue Google Maps API with the initMap callback
-            $api_key = esc_html(RC_Map_Settings::$options['rc_map_api_key']);
+            $api_key = $this->getApiKey();
             wp_enqueue_script(
                 'google-maps',
                 'https://maps.googleapis.com/maps/api/js?key=' . $api_key . '&callback=initMap',
@@ -257,6 +259,18 @@ if (!class_exists('RC_Map')) {
             require( RC_MAP_PATH . 'views/poi-list-page.php' );
 
         }
+	    private function getApiKey(): string
+	    {
+
+		    $encrypted_key = RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_api_key'];
+		    if ( $encrypted_key === '' ) {
+			    $decrypted_key = 'API Not Set';
+		    } else {
+			    $decrypted_key = $this->data_encryption->decrypt($encrypted_key);
+		    }
+		    return $decrypted_key;
+
+	    }
     }
 
 }

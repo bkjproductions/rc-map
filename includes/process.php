@@ -1,6 +1,7 @@
 <?php
 include_once(RC_MAP_PATH . 'class.rc-map-settings.php');
 
+
 class ProcessMap
 {
     private wpdb $db;
@@ -8,19 +9,16 @@ class ProcessMap
     private array $finished_data;
 
     // MAP SETTINGS
-    private string $google_api_key;
     private mixed $mapData;
     private mixed $markers;
     private mixed $snazzy_style;
     private mixed $categories;
 
 
-
     public function __construct()
     {
         global $wpdb;
         $this->finished_data = [];
-        $this->google_api_key = $this->getApiKey();
         $this->snazzy_style = $this->getSnazzyStyle();
         $this->categories = $this->getCategories();
         $this->markers = $this->getAllPoints();
@@ -128,11 +126,7 @@ class ProcessMap
 
 
 
-    private function getApiKey(): string
-    {
-        return RC_Map_Settings::$options['rc_map_api_key'];
 
-    }
 
     private function getSnazzyStyle():string{
         $default_style = get_option('rc_map_load_style');
@@ -289,8 +283,8 @@ class ProcessMap
 
         // Replace the placeholders with serialized data in the JavaScript template
         $javascriptContent = str_replace(
-            array('{{MAP_SETTINGS}}','{{TERMS}}','{{PRINCIPAL_INFO}}', '{{GOOGLE_MAPS_API_KEY}}', '{{MAP_STYLE}}', '{{BASE_URL}}', '{{MARKERS}}'),
-            array($serializedMapSettings,$serializedCategories, $serializedPrincipalInfo, $this->google_api_key, $this->snazzy_style, get_site_url(), $this->markers),
+            array('{{MAP_SETTINGS}}','{{TERMS}}','{{PRINCIPAL_INFO}}', '{{MAP_STYLE}}', '{{BASE_URL}}', '{{MARKERS}}'),
+            array($serializedMapSettings,$serializedCategories, $serializedPrincipalInfo, $this->snazzy_style, get_site_url(), $this->markers),
             $javascriptContent
         );
 

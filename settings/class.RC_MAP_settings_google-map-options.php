@@ -272,7 +272,7 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
 
         }
 
-        function decryptData( $input ): string {
+        public function decryptData( $input ): string {
 
             if ( $input ) {
                 return $this->data_encryption->decrypt( $input );
