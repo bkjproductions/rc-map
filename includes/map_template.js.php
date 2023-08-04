@@ -5,7 +5,6 @@
 
 var markers = {{MARKERS}};
 var terms = {{TERMS}};
-console.log(terms);
 var myGoogleMap;
 var allMarkers = [];
 var allInfoWindows = [];

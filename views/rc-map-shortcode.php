@@ -44,7 +44,6 @@ $categories = $wpdb->get_results($tax_query, ARRAY_A);
 
 
 
-    <h3 > <?php echo (!empty($content)) ? $content :  RC_Map_Settings::$options['rc_map_title']?></h3>
     <div id="legend">
         <ul id="map-categories">
             <li><a id="All-link" href="#" class="all selected" data-category="All">Show All</a></li>

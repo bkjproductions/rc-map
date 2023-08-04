@@ -17,12 +17,20 @@ class ProcessMap
 
     public function __construct()
     {
+	    // Check if the option rc_map_configured is set to '0'
+	    $rc_map_configured = get_option('rc_map_configured', '0');
+	    if ($rc_map_configured === '0') {
+			error_log("No Settings Configured for Map.js.");
+		    return; // Exit the constructor if rc_map_configured is '0'
+	    }
+
         global $wpdb;
         $this->finished_data = [];
         $this->snazzy_style = $this->getSnazzyStyle();
         $this->categories = $this->getCategories();
         $this->markers = $this->getAllPoints();
         // Process template file
+	    $this->generateMap();
 
 
     }
@@ -310,4 +318,3 @@ class ProcessMap
 }
 
 $map = new ProcessMap();
-$map->generateMap();

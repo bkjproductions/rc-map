@@ -33,7 +33,13 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
             register_setting(
                 option_group: 'rc_map_settings-google-map_options_group',
                 option_name: 'rc_map_settings-google-map_options',
-                args: [$this, 'rcMapGoogleMapOptionsValidate']);
+                args: [ 'sanitize_callback' =>[$this, 'rcMapGoogleMapOptionsValidate']]);
+
+            // Load Defaults
+	        $rc_map_options_configured = get_option('rc_map_settings-google-map_options', '0'); // Use '0' as the default value
+	        if ($rc_map_options_configured === '0') {
+		        add_option('rc_map_settings-google-map_options', $this->rcMapGoogleOptionsDefault()); // Add the option to the database with the value '0'
+	        }
 
             // Part of settings API - Add a section
             add_settings_section(
@@ -150,7 +156,7 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
             <input
                 style="width: 5rem;"
                 type="number"
-                step="0.5"
+                step="0.1"
                 min="1"
                 max="30"
                 name="rc_map_settings-google-map_options[rc_map_zoom]"
@@ -261,6 +267,16 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
             }
 
             return $new_input;
+        }
+
+        public function rcMapGoogleOptionsDefault ():array {
+            return [
+                    'rc_map_api_key' => null,
+                    'rc_map_zoom' => 11.5,
+                    'rc_map_marker-scale' => 1.3,
+                    'rc_map_center_latitude' => 40.71293,
+                    'rc_map_center_longitude' => -74.01314,
+            ];
         }
         /**** ENCRYPTION FUNCTIONS */
 

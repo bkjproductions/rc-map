@@ -145,7 +145,7 @@ if (!class_exists('RC_Map')) {
         /**
          * Activation
          */
-        public static function activate(){
+        public static function activate(): void {
 
             // Code to register custom post types, taxonomies, and rewrite rules
             // ...
@@ -154,6 +154,16 @@ if (!class_exists('RC_Map')) {
             // update_option to clear table
             flush_rewrite_rules(); // Flush the rewrite rules after modifications
             //  update_option( ' rewrite_rules' );// Flush the rewrite rules after modifications
+
+	        $rc_map_configured = get_option('rc_map_configured', '0'); // Use '0' as the default value
+
+	        if ($rc_map_configured === '0') {
+		        add_option('rc_map_configured', '0'); // Add the option to the database with the value '0'
+	        } else {
+		        $rc_map_configured = true; // Convert '1' to true
+	        }
+
+	        error_log("Is map configured: " . print_r($rc_map_configured, true));
 
         }
         /**
