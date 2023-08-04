@@ -28,6 +28,7 @@ function initMap() {
 
     myGoogleMap = new google.maps.Map(document.getElementById('map'), mapOptions);
 
+
     var contentString = '<div id="content">'+
         '<div id="bodyContent">'+
         '<h2>'+ principalInfo.name +'</h2>'+

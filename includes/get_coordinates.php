@@ -8,14 +8,20 @@ class GetCoordinates
     private string $google_api_key;
     private array $finished_data;
     const GOOGLE_API_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json';
-
+	private RC_DataEncryption $data_encryption;
 
     public function __construct()
     {
+	    // TO DECRYPT OPTIONS
+	    include_once(RC_MAP_PATH . 'includes/class.RC_DataEncryption.php');
+	    $this->data_encryption = new RC_DataEncryption();
+
         global $wpdb;
         $this->finished_data = [];
         $this->table_name = $wpdb->prefix . 'bkj_map_poi_data';
         $this->google_api_key = $this->getApiKey();
+
+
 
     }
     public function runScript(): void
@@ -105,11 +111,18 @@ class GetCoordinates
      * @return string
      * purpose: retrieves option from wp_options table
      */
-    private function getApiKey(): string
-    {
-        return RC_Map_Settings::$options['rc_map_api_key'];
+	private function getApiKey(): string
+	{
 
-    }
+		$encrypted_key = RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_api_key'];
+		if ( $encrypted_key === '' ) {
+			$decrypted_key = 'API Not Set';
+		} else {
+			$decrypted_key = $this->data_encryption->decrypt($encrypted_key);
+		}
+		return $decrypted_key;
+
+	}
 
 
     /**
@@ -183,6 +196,7 @@ class GetCoordinates
         return update_post_meta($post_id, 'rc_poi_location_geo_code', $geo_code);
 
     }
+
 
 }
 

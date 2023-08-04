@@ -272,10 +272,11 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
         public function rcMapGoogleOptionsDefault ():array {
             return [
                     'rc_map_api_key' => null,
-                    'rc_map_zoom' => 11.5,
+                    'rc_map_zoom' => 14.5,
                     'rc_map_marker-scale' => 1.3,
                     'rc_map_center_latitude' => 40.71293,
                     'rc_map_center_longitude' => -74.01314,
+                    'rc_map_style' => 'default'
             ];
         }
         /**** ENCRYPTION FUNCTIONS */

@@ -30,6 +30,12 @@ if (!class_exists('RC_MAP_SETTINGS_MAIN_OPTIONS')){
                 option_name:  'rc_map_settings-main_options',
                 args: [$this, 'rcMapMainOptionsValidate']);
 
+	        // Load Defaults
+	        $rc_map_options_configured = get_option('rc_map_settings-main_options', '0'); // Use '0' as the default value
+	        if ($rc_map_options_configured === '0') {
+		        add_option('rc_map_settings-main_options', $this->rcMapMainOptionsDefault()); // Add the option to the database with the value '0'
+	        }
+
             // Part of settings API - Add a section
             add_settings_section(
                 id: 'rc_map_settings-main_options_section',
@@ -223,7 +229,19 @@ if (!class_exists('RC_MAP_SETTINGS_MAIN_OPTIONS')){
         <?php
         }
 
-
+        public function rcMapMainOptionsDefault():array{
+            return [
+              'rc_map_principal-name' => 'One World Trade Center',
+                'rc_map_address'=> '1 World Trade Center',
+                'rc_map_city' => 'New York',
+                'rc_map_state' => 'NY',
+                'rc_map_zip-code' => '10006',
+                'rc_map_phone'=> ' ',
+                'rc_map_principal-icon-url' => RC_MAP_URL . 'src/images/wtc-marker.png',
+                'rc_map_principal-latitude' => 40.7133603,
+	            'rc_map_principal-longitude' => -74.012961
+            ];
+        }
     }
 
 }

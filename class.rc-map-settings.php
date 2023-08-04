@@ -225,7 +225,8 @@ if (!class_exists('RC_Map_Settings')) {
 	        $admin_current_page_url = admin_url($current_page_path);
 
 	        // Redirect the user to the generated URL
-	        wp_safe_redirect($admin_current_page_url);
+	        wp_safe_redirect(admin_url('edit.php?post_type=rc-poi'));
+	        //wp_safe_redirect($admin_current_page_url);
 	        exit(); // It's important to use exit() after the redirect to ensure the script execution stops.
 
 
