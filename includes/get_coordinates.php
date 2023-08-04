@@ -73,7 +73,7 @@ class GetCoordinates
                 $encodedAddress = $this->encodeAddress($result);
                 // get coordinates
                 $hasGeoCode = $this->verifyGeoCode($result);
-                error_log(print_r($encodedAddress, true));
+               // error_log(print_r($encodedAddress, true));
                 if ($hasGeoCode) {
                     $coordinates = $this->getExistingGeoCode($result);
 
@@ -171,7 +171,7 @@ class GetCoordinates
         if (is_array($response) && !is_wp_error($response)) {
             $response_code = wp_remote_retrieve_response_code($response);
             $response_body = wp_remote_retrieve_body($response);
-            error_log(print_r($response_body,true));
+            // error_log(print_r($response_body,true));
             // Handle the response data
             // For example, if the response is JSON, you can decode it using json_decode():
             $data = json_decode($response_body, true);

@@ -216,7 +216,7 @@ if (!class_exists('RC_MAP_SETTINGS_MAIN_OPTIONS')){
 
         public function rcMapTextInputCallback($args): void
         {
-            error_log(print_r($args,true));
+           // error_log(print_r($args,true));
             $option_name = $args['option_name']
         ?>
         <input

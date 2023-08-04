@@ -115,12 +115,20 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
         {   // This needs to be encrypted.
 
 
-            $encrypted_key = self::$options['rc_map_api_key'];
-            if ( $encrypted_key === '' ) {
-                $decrypted_key = 'Not Set';
-            } else {
-                $decrypted_key = $this->decryptData( self::$options['rc_map_api_key'] );
+
+            if(is_array(self::$options)){
+	            // Access the 'rc_map_api_key' element only if self::$options is an array
+	            $encrypted_key = self::$options['rc_map_api_key'];
+	            if ( $encrypted_key === '' ) {
+		            $decrypted_key = 'Not Set';
+	            } else {
+		            $decrypted_key = $this->decryptData( self::$options['rc_map_api_key'] );
+	            }
+            }else {
+	            $decrypted_key = 'Not Set';
             }
+
+
             ?>
          
 
@@ -195,8 +203,14 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
         public function rcMapStyleCallback(): void
         {
 
-            $options = RC_Map_Settings::$options_styles;
-            $selected_style = self::$options['rc_map_style'];
+            $options = RC_MAP_SETTINGS_SNAZZY_STYLE_OPTIONS::$options;
+            $selected_style = self::$options['rc_map_style'] ?? 0;
+
+            if ($selected_style === 0 ){
+                ?>
+                <span> No default style loaded</span>
+                <?php
+            }else {
             ?>
 
             <select
@@ -213,8 +227,7 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
                     </option>
                 <?php endforeach; ?>
             </select>
-            <div>Changing map design may require clearing cache</div>
-            <?php
+            <?php }
         }
         /**
          * @param $input

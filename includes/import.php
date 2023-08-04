@@ -66,7 +66,7 @@ if (isset($_POST['rc_map_data'])) {
 
                     if ($existing_term) {
                         // If the term exists, assign it to the current post
-                        error_log(print_r($existing_term,true));
+                       // error_log(print_r($existing_term,true));
                         wp_set_object_terms($post_id, get_term($existing_term['term_id'])->term_id, 'poi', true);
                     } else {
                         // If the term doesn't exist, create a new term and assign it to the current post

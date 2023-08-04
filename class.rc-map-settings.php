@@ -35,10 +35,17 @@ if (!class_exists('RC_Map_Settings')) {
             include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_main-options.php');
             $tabOne = new RC_MAP_SETTINGS_MAIN_OPTIONS();
 
+	        // Load Tab Three in settings page.
+	        include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_snazzy-style-options.php');
+	        $tabThree = new RC_MAP_SETTINGS_SNAZZY_STYLE_OPTIONS();
+
+
             // Load Tab Two in settings page.
             include_once (RC_MAP_PATH . 'includes/class.RC_DataEncryption.php');
             include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php');
             $tabTwo = new RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS(new RC_DataEncryption());
+
+
 
         }
 

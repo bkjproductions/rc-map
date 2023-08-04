@@ -95,8 +95,8 @@ if (!class_exists('POI_List_Table')) {
             if (isset($_POST['edit-rc-poi']) && isset($_POST['s'])) {
 
                 $poi_data = $this->get_poi_data($_POST['s']);
-                error_log("SEARCHING");
-                error_log(print_r($poi_data,true));
+                //error_log("SEARCHING");
+                //error_log(print_r($poi_data,true));
 
             } else {
 

@@ -326,7 +326,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
         public function whereClauseAdjustment($where){
             global $wpdb;
             $search_term = get_search_query();
-            error_log($where);
+            //error_log($where);
             if ( !empty($search_term) ) {
                 // ADD the unique alias '{plugin}_pm'
 

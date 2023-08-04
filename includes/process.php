@@ -38,7 +38,7 @@ class ProcessMap
     {
         error_log("Updating map data...!");
         $result = $this->getAllPoints();
-		error_log(print_r($this->markers,true));
+		//error_log(print_r($this->markers,true));
 
         if (!$result) {
             error_log("Something went wrong!");
@@ -138,15 +138,22 @@ class ProcessMap
 
     private function getSnazzyStyle():string{
         $default_style = get_option('rc_map_load_style');
+
+
         $selected_style = RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS::$options['rc_map_style'];
 
 
-        $map_styles = RC_Map_Settings::$options_styles;
+        $map_styles = RC_MAP_SETTINGS_SNAZZY_STYLE_OPTIONS::$options;
 
-        if (!$map_styles){
+        if (!$map_styles[$selected_style]){
             return $default_style;
         }
-	   //error_log(print_r($map_styles[$selected_style],true));
+
+
+
+	    if (is_array($map_styles[$selected_style])){
+			return json_encode($map_styles[$selected_style]);
+	    }
         return $map_styles[$selected_style];
 
     }
@@ -235,7 +242,7 @@ class ProcessMap
             }
             $output['html'] .= '<p><a href="' . $point->url . '" target="_blank">Visit website</a></p>';
         }
-		error_log(print_r($point->terms,true));
+		//error_log(print_r($point->terms,true));
         if (!isset($this->finished_data[$point->terms])) {
             $this->finished_data[$point->terms] = array();
         }
@@ -244,7 +251,7 @@ class ProcessMap
 
     }
     public function generateCSSFile():void {
-        error_log("regenerating CSS");
+        //error_log("regenerating CSS");
         // Load the CSS template file
         ob_start();
         include('map_template.css.php');
