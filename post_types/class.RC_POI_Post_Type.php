@@ -205,70 +205,7 @@ if (!class_exists('RC_POI_Post_Type ')) {
                 }
             }
         }
-        // SAVE POST
-//        public function savePost($post_id ): void{
-//
-//            if (!$this->validateUser($post_id)) return;
-//
-//
-//            if( isset( $_POST['action'] ) && $_POST['action'] == 'editpost' ){
-//                $old_poi_url = get_post_meta( $post_id, 'rc_poi_location_url', true ); // single: return as string, false, return array
-//                $old_poi_address = get_post_meta( $post_id, 'rc_poi_location_address', true ); // single: return as string, false, return array
-//                $old_poi_city = get_post_meta( $post_id, 'rc_poi_location_city', true ); // single: return as string, false, return array
-//                $old_poi_state = get_post_meta( $post_id, 'rc_poi_location_state', true ); // single: return as string, false, return array
-//                $old_poi_zip_code = get_post_meta( $post_id, 'rc_poi_location_zip_code', true ); // single: return as string, false, return array
-//                $old_poi_phone = get_post_meta( $post_id, 'rc_poi_location_phone', true ); // single: return as string, false, return array
-//                $old_poi_geo_code = get_post_meta( $post_id, 'rc_poi_location_geo_code', true ); // single: return as string, false, return array
-//
-//
-//                $new_poi_url= $_POST['rc_poi_location_url'];
-//                $new_poi_address = $_POST['rc_poi_location_address'];
-//                $new_poi_city = $_POST['rc_poi_location_city'];
-//                $new_poi_state = $_POST['rc_poi_location_state'];
-//                $new_poi_zip_code = $_POST['rc_poi_location_zip_code'];
-//                $new_poi_phone = $_POST['rc_poi_location_phone'];
-//                $new_poi_geo_code = $_POST['rc_poi_location_geo_code'];
-//
-//
-//                if( empty( $new_poi_url )){
-//                    update_post_meta( $post_id, 'rc_poi_location_url', null );
-//                }else{
-//                    update_post_meta( $post_id, 'rc_poi_location_url', sanitize_text_field( $new_poi_url ), $old_poi_url );
-//                }
-//                if( empty( $new_poi_address )){
-//                    update_post_meta( $post_id, 'rc_poi_location_address', null );
-//                }else{
-//                    update_post_meta( $post_id, 'rc_poi_location_address', sanitize_text_field( $new_poi_address ), $old_poi_address );
-//                }
-//                if( empty( $new_poi_city )){
-//                    update_post_meta( $post_id, 'rc_poi_location_city', null );
-//                }else{
-//                    update_post_meta( $post_id, 'rc_poi_location_city', sanitize_text_field( $new_poi_city ), $old_poi_city );
-//                }
-//                if( empty( $new_poi_state )){
-//                    update_post_meta( $post_id, 'rc_poi_location_state', null );
-//                }else{
-//                    update_post_meta( $post_id, 'rc_poi_location_state', sanitize_text_field( $new_poi_state ), $old_poi_state );
-//                }
-//                if( empty( $new_poi_zip_code )){
-//                    update_post_meta( $post_id, 'rc_poi_location_zip_code', null );
-//                }else{
-//                    update_post_meta( $post_id, 'rc_poi_location_zip_code', sanitize_text_field( $new_poi_zip_code ), $old_poi_zip_code );
-//                }
-//                if( empty( $new_poi_phone )){
-//                    update_post_meta( $post_id, 'rc_poi_location_phone', null );
-//                }else{
-//                    update_post_meta( $post_id, 'rc_poi_location_phone', sanitize_text_field( $new_poi_phone ), $old_poi_phone );
-//                }
-//                if( empty( $new_poi_geo_code )){
-//                    update_post_meta( $post_id, 'rc_poi_location_geo_code', null );
-//                }else{
-//                    update_post_meta( $post_id, 'rc_poi_location_geo_code', sanitize_text_field( $new_poi_geo_code ), $old_poi_geo_code );
-//                }
-//
-//
-//            }
-//        }
+
 
         // ADD COLUMNS
         public function rcMapCPTColumns($columns)   {

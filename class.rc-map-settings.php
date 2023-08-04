@@ -225,7 +225,7 @@ if (!class_exists('RC_Map_Settings')) {
 	        $admin_current_page_url = admin_url($current_page_path);
 
 	        // Redirect the user to the generated URL
-	        wp_safe_redirect(admin_url('edit.php?post_type=rc-poi'));
+	        wp_safe_redirect(admin_url('edit.php?admin.php?page=edit-rc-poi'));
 	        //wp_safe_redirect($admin_current_page_url);
 	        exit(); // It's important to use exit() after the redirect to ensure the script execution stops.
 
@@ -269,7 +269,7 @@ if (!class_exists('RC_Map_Settings')) {
             require_once(RC_MAP_PATH . 'includes/get_coordinates.php');
 
             // Redirect back to the admin page after processing
-            wp_safe_redirect(admin_url('admin.php?page=rc_map_admin&tab=generate_map'));
+            wp_safe_redirect(admin_url('admin.php?page=edit-rc-poi'));
             exit;
         }
 

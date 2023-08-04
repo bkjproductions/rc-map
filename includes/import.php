@@ -81,4 +81,5 @@ if (isset($_POST['rc_map_data'])) {
 
 
     }
+	include_once (RC_MAP_PATH . 'includes/get_coordinates.php');
 }
