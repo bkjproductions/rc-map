@@ -14,7 +14,7 @@ First, Click on `Main Options` tab. Here enter the Principal POI location inform
 
 Next, in the `Google MAP` tab, add your Google Maps API key.
 Additionally, you can enter the zoom level, default center point of the map, and any loaded map styles. 
-Two preloaded styles come with the plugin. Additional styles can be configured [here](https://snazzymaps.com/)
+One preloaded style come with the plugin. Additional styles can be configured [here](https://snazzymaps.com/) and loading into the `Load Style` Tab 
 
 
 

@@ -114,7 +114,8 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
         public function rcMapApiKeyCallback(): void
         {   // This needs to be encrypted.
 
-
+            // enable the running process.php
+            update_option('rc_map_configured', 1);
 
             if(is_array(self::$options)){
 	            // Access the 'rc_map_api_key' element only if self::$options is an array

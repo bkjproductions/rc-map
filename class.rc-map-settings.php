@@ -39,7 +39,6 @@ if (!class_exists('RC_Map_Settings')) {
 	        include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_snazzy-style-options.php');
 	        $tabThree = new RC_MAP_SETTINGS_SNAZZY_STYLE_OPTIONS();
 
-
             // Load Tab Two in settings page.
             include_once (RC_MAP_PATH . 'includes/class.RC_DataEncryption.php');
             include_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php');
@@ -53,35 +52,9 @@ if (!class_exists('RC_Map_Settings')) {
         {
             // More about settings API: http://presscoders.com/wordpress-settings-api-explained/
             register_setting('rc_map_group_6', 'rc_map_options_6', [$this, 'rcMapValidate_6']);
-            register_setting('rc_map_group_styles', 'rc_map_group_styles_options', [$this, 'rcMapValidateStyles']);
 
 
 
-            // PAGE 3 ***************************** //
-            add_settings_section(
-                id: 'rc_map_third_section',
-                title: 'Load Map Styles',
-                callback: null,
-                page: 'rc_map_page3',
-                args: null
-            );
-
-            add_settings_field(
-                id: 'key',
-                title: 'Unique Map Name',
-                callback: [$this, 'rcMapStyleKeyCallback'],
-                page: 'rc_map_page3',
-                section: 'rc_map_third_section',
-                args: []
-            );
-            add_settings_field(
-                id: 'value',
-                title: 'Snazzy JSON',
-                callback: [$this, 'rcMapStyleValueCallback'],
-                page: 'rc_map_page3',
-                section: 'rc_map_third_section',
-                args: []
-            );
 
 
             // PAGE 4 ***************************** //
@@ -134,7 +107,9 @@ if (!class_exists('RC_Map_Settings')) {
         {
 
             include_once(RC_MAP_PATH . 'includes/process.php');
+	        settings_errors();
 	        wp_cache_flush();
+
 
         }
 
@@ -143,55 +118,12 @@ if (!class_exists('RC_Map_Settings')) {
         {
 
             include_once(RC_MAP_PATH . 'includes/process.php');
+	        settings_errors();
 	        wp_cache_flush();
 
         }
 
 
-        // PAGE 3 HTML ******************************** /
-
-        public function rcMapStyleKeyCallback(): void
-        { ?>
-            <div>
-                <input type="text" name="rc_map_group_styles_options[key]" id="rc_map_group_styles_options[key]"/>
-            </div>
-
-
-        <?php }
-
-        public function rcMapStyleValueCallback(): void
-        { ?>
-
-            <textarea name="rc_map_group_styles_options[value]" id="rc_map_group_styles_options[value]" cols="60"
-                      rows="30"><?php echo "Paste Snazzy JSON Here !"; ?></textarea>
-
-            <?php
-        }
-
-        private function rc_map_options_map_styles_options()
-        {
-            $options = get_option('rc_map_group_styles_options');
-
-            if (!is_array($options)) {
-                $options = array();
-            }
-
-            return $options;
-        }
-
-        public function rcMapValidateStyles($input): array
-        {
-            //error_log("RUNNING IN STYLE VALIDATION");
-
-            // Get existing map styles
-            $map_styles = $this->rc_map_options_map_styles_options();
-
-            // Append to style
-            $map_styles[$input['key']] = $input['value'];
-
-            return $map_styles;
-
-        }
         // PAGE 4 HTML ******************************* /
         // SEE views/settings-page.php
         // PAGE 5 HTML ******************************* /
@@ -276,6 +208,7 @@ if (!class_exists('RC_Map_Settings')) {
             require_once(RC_MAP_PATH . 'includes/get_coordinates.php');
 
             // Redirect back to the admin page after processing
+
             wp_safe_redirect(admin_url('admin.php?page=edit-rc-poi'));
             exit;
         }
