@@ -63,6 +63,7 @@ if (!class_exists('RC_Map')) {
 
             // SETTINGS PAGE + STATIC METHOD options
 	        require_once (RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php');
+			require_once (RC_MAP_PATH . 'settings/class.RC_Map_settings_additional_options.php');
             require_once(RC_MAP_PATH . 'class.rc-map-settings.php');
             $this->rc_map_settings = new RC_Map_Settings();
 
@@ -80,8 +81,6 @@ if (!class_exists('RC_Map')) {
 
             // ENQUEUE FRONTEND SCRIPTS
             add_action('wp_enqueue_scripts', [$this, 'enqueueFrontendScripts']);
-
-
 
         }
 
@@ -198,9 +197,7 @@ if (!class_exists('RC_Map')) {
 
             // CUSTOM WP_LIST_TABLE Class
 
-            if ( isset($this->rc_map_settings::$options_6['rc_map_use_data_tables_js']) &&
-                    $this->rc_map_settings::$options_6['rc_map_use_data_tables_js']
-                ){
+            if ( RC_MAP_SETTINGS_ADDITIONAL_OPTIONS::$options['rc_map_use_data_tables_js']){
                 add_submenu_page(
                     parent_slug: 'rc_map_admin',
                     page_title: __('Manage POIs', RC_TEXT_DOMAIN),

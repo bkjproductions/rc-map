@@ -2,7 +2,36 @@
 
 if (isset($_POST['rc_map_data'])) {
     $data = sanitize_textarea_field($_POST['rc_map_data']);
+	$isValidData = verify_data_format($data);
+	if (!$isValidData){
+		update_option('rc_map_error_load_data','Verify your data format.');
+		wp_safe_redirect('admin.php?page=rc_map_admin&tab=load_map_data_options');
+		exit();
+	}
+	$replace_all_data = $_POST['rc_map_replace_data'];
 
+	if ($replace_all_data){
+		error_log("INSIDE REPLACE DATA");
+		// Step 1: Get all posts with custom post type 'poi'
+		$args = array(
+			'post_type' => 'rc-poi',
+			'posts_per_page' => -1, // Retrieve all posts of the custom post type
+		);
+
+		$poi_posts = new WP_Query($args);
+
+		// Step 2: Delete each post
+		if ($poi_posts->have_posts()) {
+			while ($poi_posts->have_posts()) {
+				$poi_posts->the_post();
+				$post_id = get_the_ID();
+				wp_delete_post($post_id, true); // Set the second parameter to true to bypass trash and delete permanently
+			}
+		}
+
+		// Step 3: Reset the post data
+		wp_reset_postdata();
+	}
     // Split the data into rows based on line breaks
     $rows = explode("\n", $data);
 
@@ -82,4 +111,21 @@ if (isset($_POST['rc_map_data'])) {
 
     }
 	include_once (RC_MAP_PATH . 'includes/get_coordinates.php');
+}
+function verify_data_format($data) {
+	// Split the data into lines
+	$lines = explode("\n", $data);
+
+	foreach ($lines as $line) {
+		// Split the line into fields based on tab separator
+		$fields = explode("\t", $line);
+
+		// Check if the line has the correct number of fields (columns)
+		$expected_columns = 9; // Adjust this value based on the number of columns you expect
+		if (count($fields) !== $expected_columns) {
+			return false;
+		}
+	}
+
+	return true;
 }

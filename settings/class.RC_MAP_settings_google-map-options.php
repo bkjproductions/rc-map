@@ -269,16 +269,17 @@ if (!class_exists('RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS')){
                         $pattern = '/^(-?\d+(\.\d+)?|-?\.\d+)$/';
                         if (!preg_match($pattern,$value)){
                             $value = 'Please enter a valid longitude value.';
-                            add_settings_error('rc_map_settings-google-maps_options_section','field warning',$value,'warning');
+                            add_settings_error('rc_map_settings-google-maps_options_section','field_warning',$value,'warning');
                         }
                         $new_input[$key] = sanitize_text_field($value);
                         break;
                     default:
-                        if (!$value) break;
+	                    if (!$value) break;
                         $new_input[$key] = sanitize_text_field($value);
                         break;
                 }
             }
+	        add_settings_error('rc_map_settings-google-maps_options_section','cache_warning','You may need to clear server cache to see results','warning');
 
             return $new_input;
         }

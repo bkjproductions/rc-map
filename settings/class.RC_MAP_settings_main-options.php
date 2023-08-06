@@ -199,7 +199,7 @@ if (!class_exists('RC_MAP_SETTINGS_MAIN_OPTIONS')){
                             break;
                     }
                 }
-
+	        add_settings_error('rc_map_settings-main_options_section','cache_warning','You may need to clear server cache to see results','warning');
                 return $new_input;
         }
 

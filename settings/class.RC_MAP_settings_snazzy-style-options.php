@@ -90,8 +90,6 @@ if (!class_exists('RC_MAP_SETTINGS_SNAZZY_STYLE_OPTIONS')){
 
 		public function rcMapValidateStyles($input): array
 		{
-			error_log("RUNNING IN STYLE VALIDATION");
-            //error_log(print_r($input,true));
 
 			// Get existing map styles
 			$map_styles = $this->rc_map_options_map_styles_options() ?? 0;
@@ -100,7 +98,6 @@ if (!class_exists('RC_MAP_SETTINGS_SNAZZY_STYLE_OPTIONS')){
 	            // Append to style
 	            $map_styles[ $input['key'] ] = $input['value'];
             }
-            //error_log($map_styles['key']);
 
 
             return $map_styles;
