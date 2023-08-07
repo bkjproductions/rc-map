@@ -98,7 +98,7 @@ if (!class_exists('RC_MAP_SETTINGS_ADDITIONAL_OPTIONS')){
 		}
 		public function rcAdditionalOptionsDefault ():array {
 			return [
-				'rc_map_use_data_tables_js' => 1,
+				'rc_map_use_data_tables_js' => 0,
 				'rc_map_show_generate_map_tab' => 1
 			];
 		}
