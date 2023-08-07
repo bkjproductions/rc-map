@@ -82,6 +82,8 @@ if (!class_exists('RC_Map')) {
             // ENQUEUE FRONTEND SCRIPTS
             add_action('wp_enqueue_scripts', [$this, 'enqueueFrontendScripts']);
 
+
+
         }
 
         function enqueueScriptsAndStyles(): void {
@@ -154,14 +156,15 @@ if (!class_exists('RC_Map')) {
             flush_rewrite_rules(); // Flush the rewrite rules after modifications
             //  update_option( ' rewrite_rules' );// Flush the rewrite rules after modifications
 
-	        $rc_map_configured = get_option('rc_map_configured', '0'); // Use '0' as the default value
+	        $rc_map_configured = get_option('rc_map_configured', '1'); // Use '0' as the default value
 
 	        if ($rc_map_configured === '0') {
-		        add_option('rc_map_configured', '0'); // Add the option to the database with the value '0'
+		        add_option('rc_map_configured', '1'); // Add the option to the database with the value '0'
 	        } else {
 		        $rc_map_configured = true; // Convert '1' to true
 	        }
-
+	        // SEED THE DUMMY DATA
+	        self::createSamplePosts();
 	        error_log("Is map configured: " . print_r($rc_map_configured, true));
 
         }
@@ -277,6 +280,130 @@ if (!class_exists('RC_Map')) {
 		    }
 		    return $decrypted_key;
 
+	    }
+	    public static function createSamplePosts():void {
+		    // Create an array to store the post objects
+		    $sample_posts = array();
+
+		    // Sample post data to create three posts
+		    $sample_data = array(
+			    array(
+				    'post_title' => 'P.J. Clarke\'s On The Hudson',
+				    'address' => '250 Vesey St.',
+				    'city' => 'New York',
+				    'state' => 'NY',
+				    'zip_code' => '10080',
+				    'url' => '',
+				    'phone' => '212.776.4927',
+				    'categories' => ['Dinner'],
+				    'geo_code' => '',
+			    ),
+			    array(
+				    'post_title' => 'Malibu Barbie Café',
+				    'address' => '19 Fulton St.',
+				    'city' => 'New York',
+				    'state' => 'NY',
+				    'zip_code' => '10038',
+				    'url' => '',
+				    'phone' => '',
+				    'categories' => ['Dinner'],
+				    'geo_code' => '',
+			    ),
+			    array(
+				    'post_title' => 'Battery Gardens',
+				    'address' => '1 Battery Pl.',
+				    'city' => 'New York',
+				    'state' => 'NY',
+				    'zip_code' => '10004',
+				    'url' => '',
+				    'phone' => '212.809.5508',
+				    'categories' => ['Dinner'],
+				    'geo_code' => '',
+			    ),
+			    array(
+				    'post_title' => 'Keste Pizza e Vino',
+				    'address' => '77 Fulton Street',
+				    'city' => 'New York',
+				    'state' => 'NY',
+				    'zip_code' => '10038',
+				    'url' => 'http://kestepizzeria.com',
+				    'phone' => '',
+				    'categories' => ['Dinner'],
+				    'geo_code' => '40.7090783, -74.004535',
+			    ),
+		    );
+
+		    // Loop through the sample data and create posts
+		    foreach ($sample_data as $datum) {
+
+			    // Now you have an array of data items for each row, and you can process them accordingly
+			    $post_title = $datum->post_title;
+			    // Process other data items as needed
+			    $poi_address = $datum->address;
+			    $poi_city = $datum->city;
+			    $poi_state = $datum->state;
+			    $poi_zip_code = $datum->zip_code;
+			    $poi_url = $datum->url;
+			    $poi_phone = $datum->phone;
+			    $poi_category = $datum->categories;
+			    $poi_geo_code = $datum->geo_code;
+
+
+			    $post_args = array(
+				    'post_title' => $post_title, // Adjust the index based on your data columns
+				    // Map other data to appropriate custom post fields
+				    'post_type' => 'rc-poi',
+				    'post_status' => 'publish',
+			    );
+			    $post_id = wp_insert_post($post_args);
+
+			    if ($post_id) {
+				    // Optionally, update custom fields for the post if needed
+				    update_post_meta($post_id, 'rc_poi_location_address', $poi_address);
+				    update_post_meta($post_id, 'rc_poi_location_city', $poi_city);
+				    update_post_meta($post_id, 'rc_poi_location_state', $poi_state);
+				    update_post_meta($post_id, 'rc_poi_location_zip_code', $poi_zip_code);
+				    update_post_meta($post_id, 'rc_poi_location_phone', $poi_phone);
+				    update_post_meta($post_id, 'rc_poi_location_url', $poi_url);
+				    update_post_meta($post_id, 'rc_poi_location_geo_code', $poi_geo_code);
+
+
+				    if (isset($datum->categories)) { // Assuming "categories" column is at index 7
+
+					    $tags = explode(',', $datum->categories);
+					    $tags = array_map('trim', $tags);
+
+
+					    foreach ($tags as $tag) {
+
+						    // Disable term caching to avoid potential issues with term_exists
+						    $GLOBALS['wpdb']->cache_terms = false;
+
+						    // Check if the term already exists in the "location_type" taxonomy
+						    $existing_term = term_exists($tag, 'poi');
+
+						    // Re-enable term caching
+						    $GLOBALS['wpdb']->cache_terms = true;
+
+						    if ($existing_term) {
+							    // If the term exists, assign it to the current post
+							    // error_log(print_r($existing_term,true));
+							    wp_set_object_terms($post_id, get_term($existing_term['term_id'])->term_id, 'poi', true);
+						    } else {
+							    // If the term doesn't exist, create a new term and assign it to the current post
+							    $new_term = wp_insert_term($tag, 'poi');
+							    if (!is_wp_error($new_term) && isset($new_term['term_id'])) {
+								    wp_set_object_terms($post_id, $new_term['term_id'], 'poi', true);
+							    }
+						    }
+					    }
+				    }
+			    }
+
+
+		    }
+		    // Store the array of post objects in a WordPress option for later use
+		    update_option('rc_map_custom_plugin_sample_posts', $sample_posts);
 	    }
     }
 

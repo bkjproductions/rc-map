@@ -10,6 +10,7 @@
 // define('TEMPLATE_URL',get_stylesheet_directory_uri() );
 global $wpdb;
 
+
 $tax_query = "
         SELECT 
             t.term_id,

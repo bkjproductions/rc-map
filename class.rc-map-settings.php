@@ -39,7 +39,7 @@ if (!class_exists('RC_Map_Settings')) {
 
 		    // Load Google Map Tab
 		    include_once( RC_MAP_PATH . 'includes/class.RC_DataEncryption.php' );
-		    include_once( RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php' );
+		    include( RC_MAP_PATH . 'settings/class.RC_MAP_settings_google-map-options.php' );
 		    $tabTwo = new RC_MAP_SETTINGS_GOOGLE_MAP_OPTIONS( new RC_DataEncryption() );
 
 		    // Load Additional Options Tab

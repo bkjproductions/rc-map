@@ -25,12 +25,32 @@ if (isset($_POST['rc_map_data'])) {
 			while ($poi_posts->have_posts()) {
 				$poi_posts->the_post();
 				$post_id = get_the_ID();
+
 				wp_delete_post($post_id, true); // Set the second parameter to true to bypass trash and delete permanently
 			}
+
+
 		}
 
 		// Step 3: Reset the post data
 		wp_reset_postdata();
+
+		// Remove all terms
+		// Step 1: Get all terms associated with the 'poi' taxonomy
+		$args = array(
+			'taxonomy' => 'poi',
+			'hide_empty' => false, // Include terms even if they are not assigned to any posts
+			'fields' => 'ids', // Return only term IDs
+		);
+
+		$poi_terms = get_terms($args);
+
+		// Step 2: Loop through each term and remove it from the 'poi' taxonomy
+		if (!is_wp_error($poi_terms) && !empty($poi_terms)) {
+			foreach ($poi_terms as $term_id) {
+				wp_delete_term($term_id, 'poi');
+			}
+		}
 	}
     // Split the data into rows based on line breaks
     $rows = explode("\n", $data);
