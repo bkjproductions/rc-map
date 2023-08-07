@@ -152,8 +152,7 @@ if (!class_exists('RC_Map_Settings')) {
 			require_once( RC_MAP_PATH . 'includes/get_coordinates.php' );
 
 			// Redirect back to the admin page after processing
-
-			wp_safe_redirect( admin_url( 'admin.php?page=edit-rc-poi' ) );
+			wp_safe_redirect( admin_url( 'edit.php?post_type=rc-poi' ) );
 			exit;
 		}
 	}

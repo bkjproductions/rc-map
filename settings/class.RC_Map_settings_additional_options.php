@@ -22,6 +22,13 @@ if (!class_exists('RC_MAP_SETTINGS_ADDITIONAL_OPTIONS')){
 				option_name: 'rc_map_settings-additional_options',
 				args: [ 'sanitize_callback' =>[$this, 'rcMapAdditionalOptionsValidate']]);
 
+			// Load Defaults
+			$rc_additional_options_configured = get_option('rc_map_settings-additional_options', '0'); // Use '0' as the default value
+			if ($rc_additional_options_configured === '0') {
+				add_option('rc_map_settings-additional_options', $this->rcAdditionalOptionsDefault()); // Add the option to the database with the value '0'
+			}
+
+
 			add_settings_section(
 				id: 'rc_map_settings-additional_options_section',
 				title: 'Additional Options',
@@ -88,6 +95,12 @@ if (!class_exists('RC_MAP_SETTINGS_ADDITIONAL_OPTIONS')){
 				}
 			}
 			return $new_input;
+		}
+		public function rcAdditionalOptionsDefault ():array {
+			return [
+				'rc_map_use_data_tables_js' => 1,
+				'rc_map_show_generate_map_tab' => 1
+			];
 		}
 
 	}

@@ -58,6 +58,7 @@ if (!class_exists('RC_Map')) {
             require_once(RC_MAP_PATH . '/post_types/class.RC_POI_Term_Type.php');
             $rc_poi_term_type = new RC_POI_Term_Type();
 
+
             // ADMIN MENU
             add_action('admin_menu', array($this, 'addMenu'));
 
@@ -156,16 +157,6 @@ if (!class_exists('RC_Map')) {
             flush_rewrite_rules(); // Flush the rewrite rules after modifications
             //  update_option( ' rewrite_rules' );// Flush the rewrite rules after modifications
 
-	        $rc_map_configured = get_option('rc_map_configured', '1'); // Use '0' as the default value
-
-	        if ($rc_map_configured === '0') {
-		        add_option('rc_map_configured', '1'); // Add the option to the database with the value '0'
-	        } else {
-		        $rc_map_configured = true; // Convert '1' to true
-	        }
-	        // SEED THE DUMMY DATA
-	        self::createSamplePosts();
-	        error_log("Is map configured: " . print_r($rc_map_configured, true));
 
         }
         /**
@@ -200,7 +191,9 @@ if (!class_exists('RC_Map')) {
 
             // CUSTOM WP_LIST_TABLE Class
 
-            if ( RC_MAP_SETTINGS_ADDITIONAL_OPTIONS::$options['rc_map_use_data_tables_js']){
+            if ( isset(RC_MAP_SETTINGS_ADDITIONAL_OPTIONS::$options['rc_map_use_data_tables_js']) &&
+                        RC_MAP_SETTINGS_ADDITIONAL_OPTIONS::$options['rc_map_use_data_tables_js'])
+			{
                 add_submenu_page(
                     parent_slug: 'rc_map_admin',
                     page_title: __('Manage POIs', RC_TEXT_DOMAIN),
@@ -295,7 +288,7 @@ if (!class_exists('RC_Map')) {
 				    'zip_code' => '10080',
 				    'url' => '',
 				    'phone' => '212.776.4927',
-				    'categories' => ['Dinner'],
+				    'categories' => 'Dinner',
 				    'geo_code' => '',
 			    ),
 			    array(
@@ -306,7 +299,7 @@ if (!class_exists('RC_Map')) {
 				    'zip_code' => '10038',
 				    'url' => '',
 				    'phone' => '',
-				    'categories' => ['Dinner'],
+				    'categories' => 'Dinner',
 				    'geo_code' => '',
 			    ),
 			    array(
@@ -317,7 +310,7 @@ if (!class_exists('RC_Map')) {
 				    'zip_code' => '10004',
 				    'url' => '',
 				    'phone' => '212.809.5508',
-				    'categories' => ['Dinner'],
+				    'categories' => 'Dinner',
 				    'geo_code' => '',
 			    ),
 			    array(
@@ -328,7 +321,7 @@ if (!class_exists('RC_Map')) {
 				    'zip_code' => '10038',
 				    'url' => 'http://kestepizzeria.com',
 				    'phone' => '',
-				    'categories' => ['Dinner'],
+				    'categories' => 'Dinner',
 				    'geo_code' => '40.7090783, -74.004535',
 			    ),
 		    );
@@ -337,16 +330,16 @@ if (!class_exists('RC_Map')) {
 		    foreach ($sample_data as $datum) {
 
 			    // Now you have an array of data items for each row, and you can process them accordingly
-			    $post_title = $datum->post_title;
+			    $post_title = $datum['post_title'];
 			    // Process other data items as needed
-			    $poi_address = $datum->address;
-			    $poi_city = $datum->city;
-			    $poi_state = $datum->state;
-			    $poi_zip_code = $datum->zip_code;
-			    $poi_url = $datum->url;
-			    $poi_phone = $datum->phone;
-			    $poi_category = $datum->categories;
-			    $poi_geo_code = $datum->geo_code;
+			    $poi_address = $datum['address'];
+			    $poi_city = $datum['city'];
+			    $poi_state = $datum['state'];
+			    $poi_zip_code = $datum['zip_code'];
+			    $poi_url = $datum['url'];
+			    $poi_phone = $datum['phone'];
+			    $poi_category = $datum['categories'];
+			    $poi_geo_code = $datum['geo_code'];
 
 
 			    $post_args = array(
@@ -368,14 +361,12 @@ if (!class_exists('RC_Map')) {
 				    update_post_meta($post_id, 'rc_poi_location_geo_code', $poi_geo_code);
 
 
-				    if (isset($datum->categories)) { // Assuming "categories" column is at index 7
+				    if (isset($datum['categories'])) { // Assuming "categories" column is at index 7
 
-					    $tags = explode(',', $datum->categories);
+					    $tags = explode(',', $datum['categories']);
 					    $tags = array_map('trim', $tags);
 
-
 					    foreach ($tags as $tag) {
-
 						    // Disable term caching to avoid potential issues with term_exists
 						    $GLOBALS['wpdb']->cache_terms = false;
 
@@ -392,6 +383,8 @@ if (!class_exists('RC_Map')) {
 						    } else {
 							    // If the term doesn't exist, create a new term and assign it to the current post
 							    $new_term = wp_insert_term($tag, 'poi');
+							    error_log("inside foreach loop NEW term: " . print_r($new_term,true));
+
 							    if (!is_wp_error($new_term) && isset($new_term['term_id'])) {
 								    wp_set_object_terms($post_id, $new_term['term_id'], 'poi', true);
 							    }
@@ -403,7 +396,8 @@ if (!class_exists('RC_Map')) {
 
 		    }
 		    // Store the array of post objects in a WordPress option for later use
-		    update_option('rc_map_custom_plugin_sample_posts', $sample_posts);
+		    include_once (RC_MAP_PATH . 'includes/get_coordinates.php');
+
 	    }
     }
 
