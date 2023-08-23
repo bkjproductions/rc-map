@@ -52,7 +52,7 @@
             ?>
 
             <input type="hidden" name="action" value="generate_code">
-            <div>After you are satisfied with your data, generate the output files, then us shortcode [rc-map] to draw map on any page</div>
+            <div>After you are satisfied with your data, generate the output files, then use shortcode [rc-map] to draw map on any page</div>
             <button type="submit" class="button button-primary"><?php esc_html_e( 'Generate Code', 'rc-map' ); ?></button>
 
         </form>
